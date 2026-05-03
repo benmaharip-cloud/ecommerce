@@ -1,0 +1,19 @@
+{
+  "name": "ShopDjango",
+  "short_name": "ShopDjango",
+  "description": "Votre boutique en ligne au Tchad",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0d6efd",
+  "orientation": "portrait",
+  "icons": [
+    {"src": "/static/img/icon-192.png", "sizes": "192x192", "type": "image/png"},
+    {"src": "/static/img/icon-512.png", "sizes": "512x512", "type": "image/png"}
+  ],
+  "shortcuts": [
+    {"name": "Catalogue", "url": "/produits/", "description": "Voir les produits"},
+    {"name": "Mon panier", "url": "/panier/", "description": "Mon panier"},
+    {"name": "Mon compte", "url": "/compte/profil/", "description": "Mon profil"}
+  ]
+}

@@ -1,0 +1,113 @@
+{% extends "base/base.html" %}
+{% block title %}Mes coupons — ShopDjango{% endblock %}
+{% block content %}
+<div class="container py-4" style="max-width:800px;">
+  <h4 class="fw-bold mb-4"><i class="bi bi-ticket-perforated me-2 text-primary"></i>Mes codes promo</h4>
+
+  <!-- Appliquer un coupon -->
+  <div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+      <h6 class="fw-bold mb-3">Entrer un code promo</h6>
+      <div class="input-group">
+        <input type="text" id="coupon-input" class="form-control text-uppercase"
+               placeholder="Ex: BIENVENUE15" maxlength="20">
+        <button class="btn btn-primary" onclick="checkCoupon()">
+          <i class="bi bi-check-circle me-1"></i>Vérifier
+        </button>
+      </div>
+      <div id="coupon-result" class="mt-2"></div>
+    </div>
+  </div>
+
+  <!-- Coupons disponibles -->
+  <h6 class="fw-bold mb-3">Coupons disponibles</h6>
+  <div class="row g-3">
+    {% for coupon in coupons %}
+    <div class="col-md-6">
+      <div class="card border-0 shadow-sm h-100"
+           style="border-left: 4px solid {% if coupon.discount_type == 'percentage' %}#0d6efd{% else %}#198754{% endif %} !important;">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-start mb-2">
+            <div>
+              <span class="badge bg-primary fs-6 px-3 py-2">{{ coupon.code }}</span>
+            </div>
+            <div class="text-end">
+              {% if coupon.discount_type == 'percentage' %}
+              <span class="text-danger fw-bold fs-5">-{{ coupon.discount_value|floatformat:0 }}%</span>
+              {% else %}
+              <span class="text-danger fw-bold fs-5">-{{ coupon.discount_value|floatformat:0 }} F</span>
+              {% endif %}
+            </div>
+          </div>
+          <p class="text-muted small mb-2">{{ coupon.description }}</p>
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              {% if coupon.minimum_order_amount > 0 %}
+              <small class="text-muted"><i class="bi bi-info-circle me-1"></i>Min. {{ coupon.minimum_order_amount|floatformat:0 }} F</small>
+              {% endif %}
+              <br>
+              <small class="text-muted">Expire le {{ coupon.valid_until|date:"d/m/Y" }}</small>
+            </div>
+            <button class="btn btn-outline-primary btn-sm"
+                    onclick="navigator.clipboard.writeText('{{ coupon.code }}').then(()=>{
+                      this.innerHTML='<i class=\'bi bi-check2\'></i> Copié';
+                      this.classList.replace('btn-outline-primary','btn-success');
+                      setTimeout(()=>{this.innerHTML='<i class=\'bi bi-clipboard\'></i> Copier';this.classList.replace('btn-success','btn-outline-primary');},2000);
+                    })">
+              <i class="bi bi-clipboard"></i> Copier
+            </button>
+          </div>
+          <!-- Barre d'utilisation -->
+          {% if coupon.max_uses > 0 %}
+          <div class="mt-2">
+            <div class="d-flex justify-content-between">
+              <small class="text-muted">Utilisations</small>
+              <small class="text-muted">{{ coupon.current_uses }}/{{ coupon.max_uses }}</small>
+            </div>
+            <div class="progress mt-1" style="height:4px;">
+              <div class="progress-bar bg-warning"
+                   style="width:{% widthratio coupon.current_uses coupon.max_uses 100 %}%"></div>
+            </div>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    {% empty %}
+    <div class="col-12 text-center py-4 text-muted">
+      <i class="bi bi-ticket-perforated fs-1 d-block mb-2"></i>
+      Aucun coupon disponible pour le moment
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<script>
+async function checkCoupon() {
+  const code = document.getElementById('coupon-input').value.trim().toUpperCase();
+  if (!code) return;
+  const res = document.getElementById('coupon-result');
+  res.innerHTML = '<div class="spinner-border spinner-border-sm text-primary"></div>';
+  try {
+    const r = await fetch(`/api/coupons/validate/?code=${code}`);
+    const d = await r.json();
+    if (d.valid) {
+      res.innerHTML = `<div class="alert alert-success py-2 mb-0">
+        <i class="bi bi-check-circle me-2"></i>
+        <strong>${code}</strong> — ${d.discount_type === 'percentage' ? '-'+d.discount_value+'%' : '-'+d.discount_value+' F'}
+        ${d.description ? '· '+d.description : ''}
+      </div>`;
+    } else {
+      res.innerHTML = `<div class="alert alert-danger py-2 mb-0">
+        <i class="bi bi-x-circle me-2"></i>${d.error || 'Code invalide ou expiré'}
+      </div>`;
+    }
+  } catch(e) {
+    res.innerHTML = '<div class="alert alert-danger py-2 mb-0">Erreur de vérification</div>';
+  }
+}
+document.getElementById('coupon-input').addEventListener('keypress', e => {
+  if (e.key === 'Enter') checkCoupon();
+});
+</script>
+{% endblock %}

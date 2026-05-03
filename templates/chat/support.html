@@ -1,0 +1,46 @@
+{% extends 'base/base.html' %}
+{% block content %}
+<div class="container py-5">
+  <h2><i class="bi bi-headset text-info me-2"></i>Support 24/7</h2>
+  <p class="text-secondary">Notre équipe est disponible à tout moment.</p>
+  <div class="row g-3 mt-3">
+
+    <div class="col-md-4">
+      <div class="card text-center p-4 border-0 shadow-sm h-100">
+        <i class="bi bi-chat-dots-fill fs-1 text-primary"></i>
+        <h5 class="mt-2">Chat en direct</h5>
+        <p class="text-secondary small mb-3">Réponse immédiate</p>
+        <a href="#chat-widget" class="btn btn-primary btn-sm" onclick="toggleChat()">
+          Ouvrir le chat
+        </a>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card text-center p-4 border-0 shadow-sm h-100">
+        <i class="bi bi-telephone-fill fs-1 text-success"></i>
+        <h5 class="mt-2">Téléphone</h5>
+        <p class="text-secondary small mb-2">Disponible 24h/24</p>
+        <a href="tel:+23562401454" class="btn btn-success btn-sm mb-2">
+          <i class="bi bi-telephone me-1"></i>62 40 14 54
+        </a>
+        <a href="tel:+23599741086" class="btn btn-outline-success btn-sm">
+          <i class="bi bi-telephone me-1"></i>99 74 10 86
+        </a>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card text-center p-4 border-0 shadow-sm h-100">
+        <i class="bi bi-envelope-fill fs-1 text-warning"></i>
+        <h5 class="mt-2">Email</h5>
+        <p class="text-secondary small mb-3">Réponse sous 24h</p>
+        <a href="mailto:benmaharip.com" class="btn btn-warning btn-sm">
+          <i class="bi bi-envelope me-1"></i>Envoyer un email
+        </a>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

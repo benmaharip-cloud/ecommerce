@@ -1,0 +1,75 @@
+{% extends "base/base.html" %}
+{% block title %}Centre d'aide — ShopDjango{% endblock %}
+{% block content %}
+<div class="container py-5" style="max-width:800px;">
+  <div class="text-center mb-5">
+    <i class="bi bi-headset text-primary" style="font-size:3rem;"></i>
+    <h2 class="fw-bold mt-3">Centre d'aide</h2>
+    <p class="text-muted">ShopDjango — Votre boutique de confiance au Tchad</p>
+  </div>
+  <div class="accordion">
+  <div class="accordion-item border-0 shadow-sm mb-3 rounded-3 overflow-hidden">
+    <h2 class="accordion-header">
+      <button class="accordion-button  fw-semibold" type="button"
+              data-bs-toggle="collapse" data-bs-target="#q0">
+        Comment passer une commande ?
+      </button>
+    </h2>
+    <div id="q0" class="accordion-collapse collapse show">
+      <div class="accordion-body text-muted">Parcourez notre catalogue, ajoutez vos articles au panier et suivez les étapes de paiement. Nous acceptons Orange Money, Wave et Stripe.</div>
+    </div>
+  </div>
+  <div class="accordion-item border-0 shadow-sm mb-3 rounded-3 overflow-hidden">
+    <h2 class="accordion-header">
+      <button class="accordion-button collapsed fw-semibold" type="button"
+              data-bs-toggle="collapse" data-bs-target="#q1">
+        Comment suivre ma commande ?
+      </button>
+    </h2>
+    <div id="q1" class="accordion-collapse collapse ">
+      <div class="accordion-body text-muted">Connectez-vous à votre compte, allez dans 'Mes Commandes' et cliquez sur votre commande pour voir son statut en temps réel.</div>
+    </div>
+  </div>
+  <div class="accordion-item border-0 shadow-sm mb-3 rounded-3 overflow-hidden">
+    <h2 class="accordion-header">
+      <button class="accordion-button collapsed fw-semibold" type="button"
+              data-bs-toggle="collapse" data-bs-target="#q2">
+        Comment annuler une commande ?
+      </button>
+    </h2>
+    <div id="q2" class="accordion-collapse collapse ">
+      <div class="accordion-body text-muted">Vous pouvez annuler dans les 24h suivant la commande depuis votre espace client. Après expédition, contactez notre support.</div>
+    </div>
+  </div>
+  <div class="accordion-item border-0 shadow-sm mb-3 rounded-3 overflow-hidden">
+    <h2 class="accordion-header">
+      <button class="accordion-button collapsed fw-semibold" type="button"
+              data-bs-toggle="collapse" data-bs-target="#q3">
+        Problème de connexion ?
+      </button>
+    </h2>
+    <div id="q3" class="accordion-collapse collapse ">
+      <div class="accordion-body text-muted">Utilisez 'Mot de passe oublié' sur la page de connexion. Un lien de réinitialisation vous sera envoyé par email.</div>
+    </div>
+  </div>
+  <div class="accordion-item border-0 shadow-sm mb-3 rounded-3 overflow-hidden">
+    <h2 class="accordion-header">
+      <button class="accordion-button collapsed fw-semibold" type="button"
+              data-bs-toggle="collapse" data-bs-target="#q4">
+        Comment ajouter aux favoris ?
+      </button>
+    </h2>
+    <div id="q4" class="accordion-collapse collapse ">
+      <div class="accordion-body text-muted">Cliquez sur l'icône cœur sur n'importe quel produit pour l'ajouter à votre liste de favoris.</div>
+    </div>
+  </div></div>
+  <div class="card border-0 bg-light mt-4">
+    <div class="card-body text-center py-4">
+      <p class="mb-2 fw-semibold">Vous n'avez pas trouvé votre réponse ?</p>
+      <a href="/chat/mon-chat/" class="btn btn-primary">
+        <i class="bi bi-chat-dots me-2"></i>Chattez avec nous
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}

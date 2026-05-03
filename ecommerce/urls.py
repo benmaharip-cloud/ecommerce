@@ -1,0 +1,46 @@
+from django.contrib import admin
+from django.urls import path, include
+from django.views.generic import TemplateView
+from django.conf import settings
+from django.conf.urls.static import static
+
+urlpatterns = [
+    path("i18n/", include("django.conf.urls.i18n")),
+    path("rosetta/", include("rosetta.urls")),
+    path("api/auth/", include("apps.users.urls")),
+    path("api/products/", include("apps.products.urls")),
+    path("api/cart/", include("apps.cart.urls")),
+    path("api/orders/", include("apps.orders.urls")),
+    path("api/payments/", include("apps.payments.urls")),
+    path("api/reviews/", include("apps.reviews.urls")),
+    path("api/wishlist/", include("apps.wishlist.urls")),
+    path("api/coupons/", include("apps.coupons.urls")),
+    path("api/delivery/", include("apps.delivery.urls")),
+    path("api/loyalty/", include("apps.loyalty.urls")),
+    path("api/notifications/", include("apps.notifications.urls")),
+    path("api/vendor/", include("apps.vendor.urls")),
+    path("api/recommendations/", include("apps.recommendations.urls")),
+    path("fr/admin/", admin.site.urls),
+    path("avis/", include(("apps.reviews.urls", "reviews"), namespace="reviews")),
+    path("", include("apps.products.web_urls")),
+    path("panier/", include("apps.cart.web_urls")),
+    path("compte/", include("apps.users.web_urls")),
+    path("vendeur/", include("apps.vendor.web_urls")),
+    path("chat/", include("apps.chat.urls")),
+    path("paiement/", include(("apps.payments.urls", "payments"), namespace="payments")),
+    path("commandes/", include(("apps.orders.web_urls", "orders"), namespace="orders")),
+    path("fidelite/", include(("apps.loyalty.urls", "loyalty"), namespace="loyalty")),
+    path("favoris/", include(("apps.wishlist.urls", "wishlist"), namespace="wishlist")),
+    path("notifications/", include(("apps.notifications.urls", "notifications"), namespace="notifications")),
+    path('accounts/', include('allauth.urls')),
+    path('accounts/', include('allauth.urls')),    path('aide/centre/', TemplateView.as_view(template_name='aide/centre.html'), name='aide_centre'),
+    path('aide/securite/', TemplateView.as_view(template_name='aide/securite.html'), name='aide_securite'),
+    path('aide/protection-achats/', TemplateView.as_view(template_name='aide/protection-achats.html'), name='aide_protection'),
+    path('aide/confidentialite/', TemplateView.as_view(template_name='aide/confidentialite.html'), name='aide_confidentialite'),
+    path('aide/conditions/', TemplateView.as_view(template_name='aide/conditions.html'), name='aide_conditions'),
+    path('captcha/', include('apps.captcha.urls')),
+    path('pages/cgv/', TemplateView.as_view(template_name='pages/cgv.html', extra_context={'today': __import__('datetime').date.today()}), name='cgv'),
+    path('pages/mentions-legales/', TemplateView.as_view(template_name='pages/mentions_legales.html'), name='mentions'),
+    path('livraison/', TemplateView.as_view(template_name='pages/livraison.html'), name='livraison'),
+    path('retours/', TemplateView.as_view(template_name='pages/retours.html'), name='retours'),
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

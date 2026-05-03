@@ -1,0 +1,45 @@
+# Translation file
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "Bienvenue sur ShopDjango"
+msgstr "Welcome to ShopDjango"
+
+msgid "Voir le catalogue"
+msgstr "View catalogue"
+
+msgid "Categories"
+msgstr "Categories"
+
+msgid "Produits en vedette"
+msgstr "Featured products"
+
+msgid "Nouvelles arrivees"
+msgstr "New arrivals"
+
+msgid "Rechercher..."
+msgstr "Search..."
+
+msgid "Connexion"
+msgstr "Login"
+
+msgid "Deconnexion"
+msgstr "Logout"
+
+msgid "Mon profil"
+msgstr "My profile"
+
+msgid "Mes commandes"
+msgstr "My orders"
+
+msgid "Voir tout"
+msgstr "View all"
+
+msgid "Paiement securise"
+msgstr "Secure payment"
+
+msgid "Livraison rapide"
+msgstr "Fast delivery"
+

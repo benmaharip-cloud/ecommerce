@@ -1,0 +1,39 @@
+{% extends 'base/base.html' %}
+{% block title %}Conditions Générales de Vente — ShopDjango{% endblock %}
+{% block content %}
+<style>
+  .legal-hero { background: linear-gradient(135deg, #0d6efd, #0099ff); padding: 3rem 0; }
+  .legal-card { border-radius: 20px; border: none; box-shadow: 0 8px 30px rgba(0,0,0,0.08); }
+  .section-title { color: #0d6efd; border-left: 4px solid #0d6efd; padding-left: 1rem; }
+  .toc-link { color: #0d6efd; text-decoration: none; display: block; padding: 0.3rem 0; }
+</style>
+<div class="legal-hero text-white text-center">
+  <h2 class="fw-bold">CGV — ShopDjango</h2>
+  <p class="opacity-75">Dernière mise à jour : {{ today|date:"d/m/Y" }}</p>
+</div>
+<div class="container py-5" style="max-width:900px;">
+  <div class="card legal-card p-4 p-md-5">
+    <h4 class="section-title mb-3">Article 1 — Objet</h4>
+    <p>Les présentes CGV régissent les relations entre <strong>ShopDjango</strong> et tout client effectuant un achat sur notre plateforme.</p>
+    <hr class="my-4">
+    <h4 class="section-title mb-3">Article 2 — Prix</h4>
+    <p>Les prix sont indiqués en <strong>Francs CFA (FCFA)</strong>. Frais de livraison : Standard 1500 FCFA, Express 3000 FCFA. Gratuit à partir de 50 000 FCFA.</p>
+    <hr class="my-4">
+    <h4 class="section-title mb-3">Article 3 — Paiement</h4>
+    <p>Modes acceptés : <strong>Orange Money, Wave, Stripe</strong> et paiement à la livraison.</p>
+    <hr class="my-4">
+    <h4 class="section-title mb-3">Article 4 — Livraison</h4>
+    <p>Livraison uniquement au <strong>Tchad</strong>. Délais indicatifs : 1 à 3 jours selon la zone.</p>
+    <hr class="my-4">
+    <h4 class="section-title mb-3">Article 5 — Retours</h4>
+    <p><strong>30 jours</strong> pour retourner un article non utilisé. Remboursement sous 5 jours ouvrés.</p>
+    <hr class="my-4">
+    <h4 class="section-title mb-3">Article 6 — Contact</h4>
+    <div class="p-3 rounded-3" style="background:#f8f9ff;">
+      <p class="mb-1">📍 N'Djamena, Tchad</p>
+      <p class="mb-1">📞 +235 62 40 14 54 / +235 99 74 10 86</p>
+      <p class="mb-0">📧 benmaharip@gmail.com</p>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,77 @@
+{% extends "base/base.html" %}
+{% block title %}Mes points fidélité — ShopDjango{% endblock %}
+{% block content %}
+<div class="container" style="max-width:800px;">
+  <h2 class="fw-bold mb-4"><i class="bi bi-star me-2 text-warning"></i>Programme fidélité</h2>
+  <div class="row g-4">
+    <div class="col-md-4">
+      <div class="card border-0 shadow-sm text-center p-4">
+        <div class="rounded-circle bg-warning mx-auto mb-3 d-flex align-items-center justify-content-center" style="width:80px;height:80px;">
+          <i class="bi bi-trophy text-white fs-2"></i>
+        </div>
+        <h3 class="fw-bold">{{ account.points }}</h3>
+        <p class="text-muted">points disponibles</p>
+        <span class="badge bg-warning text-dark fs-6 px-3 py-2">Niveau {{ account.get_level_display }}</span>
+        {% if next_level %}
+        <div class="mt-3">
+          <small class="text-muted">Vers {{ next_level }}</small>
+          <div class="progress mt-1" style="height:8px;">
+            <div class="progress-bar bg-warning" style="width:{{ progress }}%"></div>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+    <div class="col-md-8">
+      <div class="card border-0 shadow-sm mb-3">
+        <div class="card-body">
+          <h5 class="fw-semibold mb-3">Echanger mes points</h5>
+          <div class="row g-2 mb-3">
+            <div class="col-4 text-center">
+              <div class="bg-light rounded p-2">
+                <div class="fw-bold">500 pts</div>
+                <small class="text-muted">= 2 500 FCFA</small>
+              </div>
+            </div>
+            <div class="col-4 text-center">
+              <div class="bg-light rounded p-2">
+                <div class="fw-bold">1 000 pts</div>
+                <small class="text-muted">= 5 000 FCFA</small>
+              </div>
+            </div>
+            <div class="col-4 text-center">
+              <div class="bg-light rounded p-2">
+                <div class="fw-bold">2 000 pts</div>
+                <small class="text-muted">= 10 000 FCFA</small>
+              </div>
+            </div>
+          </div>
+          <form action="/fidelite/echanger/" method="post" class="d-flex gap-2">
+            {% csrf_token %}
+            <input type="number" name="points" class="form-control" placeholder="Nombre de points" min="100" max="{{ account.points }}">
+            <button type="submit" class="btn btn-warning text-white px-4">Echanger</button>
+          </form>
+        </div>
+      </div>
+      <div class="card border-0 shadow-sm">
+        <div class="card-body">
+          <h5 class="fw-semibold mb-3">Historique</h5>
+          {% for tx in transactions %}
+          <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+            <div>
+              <p class="mb-0 small fw-semibold">{{ tx.description }}</p>
+              <small class="text-muted">{{ tx.created_at|date:"d/m/Y" }}</small>
+            </div>
+            <span class="fw-bold {% if tx.points > 0 %}text-success{% else %}text-danger{% endif %}">
+              {% if tx.points > 0 %}+{% endif %}{{ tx.points }} pts
+            </span>
+          </div>
+          {% empty %}
+          <p class="text-muted text-center py-3">Aucune transaction</p>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

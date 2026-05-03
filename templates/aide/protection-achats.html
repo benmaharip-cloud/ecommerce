@@ -1,0 +1,75 @@
+{% extends "base/base.html" %}
+{% block title %}Protection des achats — ShopDjango{% endblock %}
+{% block content %}
+<div class="container py-5" style="max-width:800px;">
+  <div class="text-center mb-5">
+    <i class="bi bi-bag-check text-warning" style="font-size:3rem;"></i>
+    <h2 class="fw-bold mt-3">Protection des achats</h2>
+    <p class="text-muted">ShopDjango — Votre boutique de confiance au Tchad</p>
+  </div>
+  <div class="accordion">
+  <div class="accordion-item border-0 shadow-sm mb-3 rounded-3 overflow-hidden">
+    <h2 class="accordion-header">
+      <button class="accordion-button  fw-semibold" type="button"
+              data-bs-toggle="collapse" data-bs-target="#q0">
+        Garantie satisfait ou remboursé
+      </button>
+    </h2>
+    <div id="q0" class="accordion-collapse collapse show">
+      <div class="accordion-body text-muted">Si votre article ne correspond pas à la description, nous vous remboursons intégralement sous 30 jours.</div>
+    </div>
+  </div>
+  <div class="accordion-item border-0 shadow-sm mb-3 rounded-3 overflow-hidden">
+    <h2 class="accordion-header">
+      <button class="accordion-button collapsed fw-semibold" type="button"
+              data-bs-toggle="collapse" data-bs-target="#q1">
+        Article non reçu
+      </button>
+    </h2>
+    <div id="q1" class="accordion-collapse collapse ">
+      <div class="accordion-body text-muted">Si votre commande n'arrive pas dans les délais prévus, ouvrez un litige depuis votre espace client et nous interviendrons.</div>
+    </div>
+  </div>
+  <div class="accordion-item border-0 shadow-sm mb-3 rounded-3 overflow-hidden">
+    <h2 class="accordion-header">
+      <button class="accordion-button collapsed fw-semibold" type="button"
+              data-bs-toggle="collapse" data-bs-target="#q2">
+        Article endommagé
+      </button>
+    </h2>
+    <div id="q2" class="accordion-collapse collapse ">
+      <div class="accordion-body text-muted">Prenez des photos de l'article endommagé et contactez notre SAV. Nous organiserons un retour et remplacement gratuit.</div>
+    </div>
+  </div>
+  <div class="accordion-item border-0 shadow-sm mb-3 rounded-3 overflow-hidden">
+    <h2 class="accordion-header">
+      <button class="accordion-button collapsed fw-semibold" type="button"
+              data-bs-toggle="collapse" data-bs-target="#q3">
+        Remboursements
+      </button>
+    </h2>
+    <div id="q3" class="accordion-collapse collapse ">
+      <div class="accordion-body text-muted">Les remboursements sont traités sous 3-5 jours ouvrables via le même moyen de paiement utilisé lors de l'achat.</div>
+    </div>
+  </div>
+  <div class="accordion-item border-0 shadow-sm mb-3 rounded-3 overflow-hidden">
+    <h2 class="accordion-header">
+      <button class="accordion-button collapsed fw-semibold" type="button"
+              data-bs-toggle="collapse" data-bs-target="#q4">
+        Programme fidélité
+      </button>
+    </h2>
+    <div id="q4" class="accordion-collapse collapse ">
+      <div class="accordion-body text-muted">Cumulez des points à chaque achat et échangez-les contre des réductions sur vos prochaines commandes.</div>
+    </div>
+  </div></div>
+  <div class="card border-0 bg-light mt-4">
+    <div class="card-body text-center py-4">
+      <p class="mb-2 fw-semibold">Vous n'avez pas trouvé votre réponse ?</p>
+      <a href="/chat/mon-chat/" class="btn btn-primary">
+        <i class="bi bi-chat-dots me-2"></i>Chattez avec nous
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}

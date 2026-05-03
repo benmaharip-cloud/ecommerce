@@ -1,0 +1,50 @@
+{% extends "base/base.html" %}
+{% block title %}Inscription — ShopDjango{% endblock %}
+{% block content %}
+<div class="container" style="max-width:500px;">
+  <div class="card border-0 shadow-sm mt-5">
+    <div class="card-body p-4">
+      <h3 class="fw-bold text-center mb-4"><i class="bi bi-person-plus me-2"></i>Inscription</h3>
+      <form method="post">
+        {% csrf_token %}
+        {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+        {% endif %}
+        <div class="row g-3">
+          <div class="col-6">
+            <label class="form-label">Prénom</label>
+            <input type="text" name="first_name" class="form-control" placeholder="Abakar" required>
+          </div>
+          <div class="col-6">
+            <label class="form-label">Nom</label>
+            <input type="text" name="last_name" class="form-control" placeholder="Mahamat" required>
+          </div>
+          <div class="col-12">
+            <label class="form-label">Email</label>
+            <input type="email" name="email" class="form-control" placeholder="votre@email.com" required>
+          </div>
+          <div class="col-12">
+            <label class="form-label">Téléphone</label>
+            <input type="tel" name="phone" class="form-control" placeholder="6XXXXXXXX">
+          </div>
+          <div class="col-12">
+            <label class="form-label">Mot de passe</label>
+            <input type="password" name="password" class="form-control" placeholder="Min. 8 caractères" required>
+          </div>
+          <div class="col-12">
+            {% include "captcha/widget.html" %}
+<button type="submit" class="btn btn-primary w-100 btn-lg">
+              <i class="bi bi-person-check me-2"></i>Créer mon compte
+            </button>
+          </div>
+        </div>
+        <p class="text-center mt-3 text-muted">
+          Déjà un compte ? <a href="/compte/connexion/">Se connecter</a>
+        </p>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

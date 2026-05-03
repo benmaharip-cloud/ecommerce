@@ -1,0 +1,138 @@
+{% extends "base/base.html" %}
+{% load i18n %}
+{% block title %}Mon panier — ShopDjango{% endblock %}
+{% block content %}
+<div class="container">
+  <h2 class="fw-bold mb-4"><i class="bi bi-cart3 me-2"></i>Mon panier</h2>
+  {% if cart|length %}
+  <div class="row g-4">
+    <div class="col-lg-8">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body p-0">
+          <table class="table mb-0">
+            <thead class="table-light">
+              <tr>
+                <th>Produit</th>
+                <th class="text-center">Quantité</th>
+                <th class="text-end">Prix</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for item in cart %}
+              <tr class="align-middle">
+                <td>
+                  <div class="d-flex align-items-center gap-3">
+                    <div class="bg-light rounded d-flex align-items-center justify-content-center" style="width:60px;height:60px;">
+                      <i class="bi bi-image text-muted"></i>
+                    </div>
+                    <div>
+                      <p class="mb-0 fw-semibold">{{ item.name }}</p>
+                      <p class="mb-0 text-primary small">{{ item.price|floatformat:0 }} FCFA</p>
+                    </div>
+                  </div>
+                </td>
+                <td class="text-center">
+                  <div class="d-flex align-items-center justify-content-center gap-2">
+                    <form action="/panier/mettre-a-jour/{{ item.product_id }}/" method="post" class="d-inline">
+                      {% csrf_token %}
+                      <input type="hidden" name="quantity" value="{{ item.quantity|add:-1 }}">
+                      <button type="submit" class="btn btn-outline-secondary btn-sm px-2">-</button>
+                    </form>
+                    <span class="fw-semibold px-2">{{ item.quantity }}</span>
+                    <form action="/panier/mettre-a-jour/{{ item.product_id }}/" method="post" class="d-inline">
+                      {% csrf_token %}
+                      <input type="hidden" name="quantity" value="{{ item.quantity|add:1 }}">
+                      <button type="submit" class="btn btn-outline-secondary btn-sm px-2">+</button>
+                    </form>
+                  </div>
+                </td>
+                <td class="text-end fw-semibold">
+                  {{ item.price|floatformat:0 }} FCFA
+                </td>
+                <td class="text-end">
+                  <form action="/panier/supprimer/{{ item.product_id }}/" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-link text-danger btn-sm p-0">
+                      <i class="bi bi-trash3 fs-5"></i>
+                    </button>
+                  </form>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-4">
+      <div class="card border-0 shadow-sm mb-3">
+        <div class="card-body">
+          <h6 class="fw-semibold mb-3"><i class="bi bi-ticket-perforated me-2 text-primary"></i>Code promo</h6>
+          {% if cart.coupon %}
+          <div class="alert alert-success py-2 d-flex justify-content-between align-items-center">
+            <span>{{ cart.coupon.code }}</span>
+            <form action="/panier/coupon/retirer/" method="post">
+              {% csrf_token %}
+              <button class="btn btn-sm text-danger p-0"><i class="bi bi-x-lg"></i></button>
+            </form>
+          </div>
+          {% else %}
+          <form action="/panier/coupon/appliquer/" method="post" class="d-flex gap-2">
+            {% csrf_token %}
+            <input type="text" name="coupon_code" class="form-control form-control-sm" placeholder="VOTRE CODE">
+            <button type="submit" class="btn btn-outline-primary btn-sm">OK</button>
+          </form>
+          {% endif %}
+        </div>
+      </div>
+      <div class="card border-0 shadow-sm">
+        <div class="card-body">
+          <h6 class="fw-semibold mb-3">Récapitulatif</h6>
+          <div class="d-flex justify-content-between mb-2">
+            <span class="text-muted">Sous-total</span>
+            <span>{{ cart.subtotal|floatformat:0 }} FCFA</span>
+          </div>
+          {% if cart.discount_amount %}
+          <div class="d-flex justify-content-between mb-2 text-success">
+            <span>Réduction</span>
+            <span>-{{ cart.discount_amount|floatformat:0 }} FCFA</span>
+          </div>
+          {% endif %}
+          <hr>
+          <div class="d-flex justify-content-between fw-bold fs-5">
+            <span>Total</span>
+            <span class="text-primary">{{ cart.total|floatformat:0 }} FCFA</span>
+          </div>
+          <a href="/commandes/passer/" class="btn btn-primary w-100 mt-3">
+            <i class="bi bi-lock me-2"></i>Passer commande
+          </a>
+          <a href="/produits/" class="btn btn-outline-secondary w-100 mt-2">
+            <i class="bi bi-arrow-left me-2"></i>Continuer mes achats
+          </a>
+          <div class="text-center mt-3">
+            <small class="text-muted">Paiement sécurisé via</small>
+            <div class="d-flex justify-content-center gap-2 mt-1 flex-wrap">
+              <span class="badge bg-secondary">Stripe</span>
+              <span class="badge bg-success">Orange Money</span>
+              <span class="badge bg-primary">Wave</span>
+              <span class="badge bg-dark">Cash</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% else %}
+  <div class="text-center py-5">
+    <i class="bi bi-cart-x text-muted" style="font-size:80px;"></i>
+    <h4 class="mt-3 text-muted">Votre panier est vide</h4>
+    <a href="/produits/" class="btn btn-primary mt-2">
+      <i class="bi bi-shop me-2"></i>Découvrir les produits
+    </a>
+  </div>
+  {% endif %}
+</div>
+{% include "recommendations/widget.html" with title="Souvent achetés ensemble" %}
+{% include "recommendations/widget.html" with title="Souvent achetés ensemble" %}
+{% endblock %}

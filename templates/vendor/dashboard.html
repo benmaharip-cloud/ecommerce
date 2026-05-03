@@ -1,0 +1,299 @@
+{% extends "base/base.html" %}
+{% block title %}Dashboard Vendeur — ShopDjango{% endblock %}
+{% block content %}
+<div class="container-fluid px-3 py-4">
+
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+      <h4 class="fw-bold mb-0"><i class="bi bi-shop me-2 text-primary"></i>Dashboard Vendeur</h4>
+      <small class="text-muted">Bonjour, {{ request.user.get_full_name|default:request.user.email }} 👋</small>
+    </div>
+    <div class="d-flex gap-2">
+      <a href="/fr/admin/products/product/add/" class="btn btn-primary btn-sm">
+        <i class="bi bi-plus-circle me-1"></i>Nouveau produit
+      </a>
+      <a href="/vendeur/taches/" class="btn btn-outline-info btn-sm">
+        <i class="bi bi-clock-history me-1"></i>Tâches
+      </a>
+      <a href="/vendeur/commandes/" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-list-ul me-1"></i>Commandes
+        {% if stats.pending_orders > 0 %}
+        <span class="badge bg-danger ms-1">{{ stats.pending_orders }}</span>
+        {% endif %}
+      </a>
+    </div>
+  </div>
+
+  <!-- Cartes stats -->
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-lg-3">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-start">
+            <div>
+              <p class="text-muted small mb-1">Revenus ce mois</p>
+              <h4 class="fw-bold text-success mb-0">{{ stats.monthly_revenue|floatformat:0 }}</h4>
+              <small class="text-muted">FCFA</small>
+            </div>
+            <div class="rounded-circle bg-success bg-opacity-10 p-2">
+              <i class="bi bi-currency-dollar text-success fs-5"></i>
+            </div>
+          </div>
+          <div class="mt-2">
+            {% if stats.revenue_change >= 0 %}
+            <span class="badge bg-success-subtle text-success">
+              <i class="bi bi-arrow-up"></i> {{ stats.revenue_change }}% vs mois dernier
+            </span>
+            {% else %}
+            <span class="badge bg-danger-subtle text-danger">
+              <i class="bi bi-arrow-down"></i> {{ stats.revenue_change }}% vs mois dernier
+            </span>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-lg-3">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-start">
+            <div>
+              <p class="text-muted small mb-1">Commandes ce mois</p>
+              <h4 class="fw-bold text-primary mb-0">{{ stats.monthly_orders }}</h4>
+              <small class="text-muted">Total: {{ stats.total_orders }}</small>
+            </div>
+            <div class="rounded-circle bg-primary bg-opacity-10 p-2">
+              <i class="bi bi-bag text-primary fs-5"></i>
+            </div>
+          </div>
+          <div class="mt-2">
+            {% if stats.orders_change >= 0 %}
+            <span class="badge bg-success-subtle text-success">
+              <i class="bi bi-arrow-up"></i> {{ stats.orders_change }}%
+            </span>
+            {% else %}
+            <span class="badge bg-danger-subtle text-danger">
+              <i class="bi bi-arrow-down"></i> {{ stats.orders_change }}%
+            </span>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-lg-3">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-start">
+            <div>
+              <p class="text-muted small mb-1">Produits actifs</p>
+              <h4 class="fw-bold text-warning mb-0">{{ stats.active_products }}</h4>
+              <small class="text-muted">sur {{ stats.total_products }} total</small>
+            </div>
+            <div class="rounded-circle bg-warning bg-opacity-10 p-2">
+              <i class="bi bi-box-seam text-warning fs-5"></i>
+            </div>
+          </div>
+          {% if stats.low_stock_count > 0 %}
+          <div class="mt-2">
+            <span class="badge bg-warning-subtle text-warning">
+              <i class="bi bi-exclamation-triangle"></i> {{ stats.low_stock_count }} stock faible
+            </span>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-lg-3">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-start">
+            <div>
+              <p class="text-muted small mb-1">Note moyenne</p>
+              <h4 class="fw-bold text-info mb-0">{{ stats.avg_rating|floatformat:1 }} ★</h4>
+              <small class="text-muted">{{ stats.total_reviews }} avis</small>
+            </div>
+            <div class="rounded-circle bg-info bg-opacity-10 p-2">
+              <i class="bi bi-star text-info fs-5"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Graphique + Top produits -->
+  <div class="row g-4 mb-4">
+    <div class="col-lg-8">
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
+          <h6 class="fw-bold mb-0">Revenus des 7 derniers jours</h6>
+          <div class="btn-group btn-group-sm">
+            <button class="btn btn-outline-secondary active" onclick="loadChart(7, this)">7j</button>
+            <button class="btn btn-outline-secondary" onclick="loadChart(14, this)">14j</button>
+            <button class="btn btn-outline-secondary" onclick="loadChart(30, this)">30j</button>
+          </div>
+        </div>
+        <div class="card-body">
+          <canvas id="revenueChart" height="100"></canvas>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-4">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-header bg-white border-0">
+          <h6 class="fw-bold mb-0"><i class="bi bi-trophy text-warning me-2"></i>Top produits</h6>
+        </div>
+        <div class="card-body p-0">
+          {% for p in top_products %}
+          <div class="d-flex align-items-center gap-3 px-3 py-2 border-bottom">
+            <span class="fw-bold text-muted" style="width:20px;">{{ forloop.counter }}</span>
+            <div class="flex-grow-1">
+              <p class="mb-0 small fw-semibold text-truncate" style="max-width:160px;">{{ p.product__name }}</p>
+            </div>
+            <span class="badge bg-primary rounded-pill">{{ p.total_sold }} ventes</span>
+          </div>
+          {% empty %}
+          <p class="text-center text-muted py-4 small">Aucune vente encore</p>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Commandes récentes + Stock faible + Avis -->
+  <div class="row g-4">
+    <div class="col-lg-6">
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white border-0 d-flex justify-content-between">
+          <h6 class="fw-bold mb-0">Commandes récentes</h6>
+          <a href="/vendeur/commandes/" class="btn btn-sm btn-outline-primary">Voir tout</a>
+        </div>
+        <div class="card-body p-0">
+          <table class="table table-hover mb-0 small">
+            <thead class="table-light">
+              <tr><th>Réf.</th><th>Client</th><th>Statut</th><th class="text-end">Total</th></tr>
+            </thead>
+            <tbody>
+              {% for order in recent_orders %}
+              <tr>
+                <td class="fw-semibold">#{{ order.reference|default:order.pk }}</td>
+                <td>{{ order.user.get_full_name|default:order.user.email|truncatechars:15 }}</td>
+                <td>
+                  {% if order.status == "delivered" %}<span class="badge bg-success">Livré</span>
+                  {% elif order.status == "confirmed" %}<span class="badge bg-primary">Confirmé</span>
+                  {% elif order.status == "cancelled" %}<span class="badge bg-danger">Annulé</span>
+                  {% elif order.status == "shipped" %}<span class="badge bg-info">Expédié</span>
+                  {% else %}<span class="badge bg-warning text-dark">En attente</span>{% endif %}
+                </td>
+                <td class="text-end fw-bold text-success">{{ order.total|floatformat:0 }} F</td>
+              </tr>
+              {% empty %}
+              <tr><td colspan="4" class="text-center text-muted py-3">Aucune commande</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-3">
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white border-0">
+          <h6 class="fw-bold mb-0 text-warning">
+            <i class="bi bi-exclamation-triangle me-1"></i>Stock faible
+          </h6>
+        </div>
+        <div class="list-group list-group-flush">
+          {% for product in low_stock %}
+          <div class="list-group-item d-flex justify-content-between align-items-center px-3 py-2">
+            <div>
+              <p class="mb-0 small fw-semibold text-truncate" style="max-width:130px;">{{ product.name }}</p>
+              <small class="text-muted">{{ product.sku }}</small>
+            </div>
+            <span class="badge {% if product.stock == 0 %}bg-danger{% else %}bg-warning text-dark{% endif %} rounded-pill">
+              {{ product.stock }}
+            </span>
+          </div>
+          {% empty %}
+          <div class="list-group-item text-center text-muted small py-3">
+            <i class="bi bi-check-circle text-success me-1"></i>Stocks OK
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-3">
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white border-0">
+          <h6 class="fw-bold mb-0"><i class="bi bi-chat-quote me-1 text-info"></i>Derniers avis</h6>
+        </div>
+        <div class="list-group list-group-flush">
+          {% for review in recent_reviews %}
+          <div class="list-group-item px-3 py-2">
+            <div class="d-flex justify-content-between">
+              <small class="fw-semibold">{{ review.user.get_full_name|default:"Client"|truncatechars:12 }}</small>
+              <small class="text-warning">
+                {% for i in "12345" %}{% if forloop.counter <= review.rating %}★{% else %}☆{% endif %}{% endfor %}
+              </small>
+            </div>
+            <small class="text-muted text-truncate d-block" style="max-width:200px;">{{ review.comment|truncatechars:50 }}</small>
+          </div>
+          {% empty %}
+          <div class="list-group-item text-center text-muted small py-3">Aucun avis</div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<script>
+let chart;
+const initData = {{ chart_data|safe }};
+const initLabels = {{ chart_labels|safe }};
+
+function buildChart(labels, data) {
+  const ctx = document.getElementById("revenueChart").getContext("2d");
+  if (chart) chart.destroy();
+  chart = new Chart(ctx, {
+    type: "line",
+    data: {
+      labels: labels,
+      datasets: [{
+        label: "Revenus (FCFA)",
+        data: data,
+        borderColor: "#0d6efd",
+        backgroundColor: "rgba(13,110,253,0.08)",
+        borderWidth: 2,
+        fill: true,
+        tension: 0.4,
+        pointRadius: 4,
+        pointBackgroundColor: "#0d6efd"
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { beginAtZero: true, ticks: { callback: v => v.toLocaleString("fr-FR") + " F" } },
+        x: { grid: { display: false } }
+      }
+    }
+  });
+}
+
+async function loadChart(days, btn) {
+  document.querySelectorAll(".btn-group .btn").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  const r = await fetch(`/vendeur/stats/api/?period=${days}`);
+  const d = await r.json();
+  buildChart(d.labels, d.data);
+}
+
+buildChart(initLabels, initData);
+</script>
+{% endblock %}

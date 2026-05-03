@@ -1,0 +1,348 @@
+{% extends "base/base.html" %}
+{% block title %}Mon profil — ShopDjango{% endblock %}
+{% block content %}
+<style>
+  .profile-hero {
+    background: linear-gradient(135deg, #0d6efd, #0099ff);
+    padding: 3rem 0 6rem;
+    margin-bottom: -4rem;
+  }
+  .profile-card {
+    border-radius: 20px;
+    border: none;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+  }
+  .avatar-ring {
+    width: 120px; height: 120px;
+    border-radius: 50%;
+    border: 4px solid white;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    object-fit: cover;
+  }
+  .avatar-placeholder {
+    width: 120px; height: 120px;
+    border-radius: 50%;
+    border: 4px solid white;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 40px; font-weight: 800; color: white;
+  }
+  .stat-card {
+    border-radius: 16px;
+    border: none;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+    transition: transform 0.2s;
+  }
+  .stat-card:hover { transform: translateY(-3px); }
+  .nav-pills .nav-link {
+    border-radius: 10px;
+    color: #666;
+    font-weight: 500;
+    padding: 0.6rem 1.2rem;
+  }
+  .nav-pills .nav-link.active {
+    background: linear-gradient(135deg, #0d6efd, #0099ff);
+  }
+  .order-item {
+    border-radius: 12px;
+    border: 1px solid #f0f0f0;
+    padding: 1rem;
+    margin-bottom: 0.8rem;
+    transition: box-shadow 0.2s;
+  }
+  .order-item:hover { box-shadow: 0 4px 15px rgba(0,0,0,0.08); }
+  .form-control, .form-select {
+    border-radius: 10px;
+    border: 1.5px solid #e0e0e0;
+    padding: 0.7rem 1rem;
+  }
+  .form-control:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 3px rgba(13,110,253,0.1);
+  }
+  .btn-save {
+    background: linear-gradient(135deg, #0d6efd, #0099ff);
+    border: none;
+    border-radius: 10px;
+    padding: 0.8rem 2rem;
+    font-weight: 600;
+  }
+</style>
+
+<!-- Hero Banner -->
+<div class="profile-hero">
+  <div class="container text-center text-white">
+    <h4 class="fw-bold mb-1">Mon Profil</h4>
+    <p class="opacity-75 small">Gérez vos informations personnelles</p>
+  </div>
+</div>
+
+<div class="container pb-5" style="max-width:1000px;">
+  {% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }} alert-dismissible fade show rounded-3 mt-3">
+      {{ message }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    {% endfor %}
+  {% endif %}
+
+  <!-- Carte profil principale -->
+  <div class="card profile-card mb-4">
+    <div class="card-body p-4">
+      <div class="d-flex align-items-center gap-4 flex-wrap">
+        <!-- Avatar -->
+        <div class="position-relative">
+          {% if user.avatar %}
+            <img src="{{ user.avatar.url }}" class="avatar-ring">
+          {% else %}
+            <div class="avatar-placeholder mx-auto">
+              {{ user.first_name.0 }}{{ user.last_name.0 }}
+            </div>
+          {% endif %}
+          <label for="avatarInput" style="position:absolute; bottom:0; right:0; background:#0d6efd; border-radius:50%; width:32px; height:32px; display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:0 2px 8px rgba(0,0,0,0.2);">
+            <i class="bi bi-camera-fill text-white" style="font-size:14px;"></i>
+          </label>
+        </div>
+        <!-- Infos -->
+        <div class="flex-grow-1">
+          <h4 class="fw-bold mb-1">{{ user.full_name }}</h4>
+          <p class="text-muted mb-1"><i class="bi bi-envelope me-1"></i>{{ user.email }}</p>
+          {% if user.phone %}
+          <p class="text-muted mb-1"><i class="bi bi-telephone me-1"></i>{{ user.phone }}</p>
+          {% endif %}
+          {% if loyalty %}
+          <span class="badge px-3 py-2" style="background:linear-gradient(135deg,#f6d365,#fda085); color:white;">
+            <i class="bi bi-trophy me-1"></i>{{ loyalty.get_level_display }} — {{ loyalty.points }} points
+          </span>
+          {% endif %}
+        </div>
+        <!-- Stats rapides -->
+        <div class="d-flex gap-3">
+          <div class="text-center px-3 py-2 rounded-3" style="background:#f8f9ff;">
+            <div class="fw-bold text-primary fs-5">{{ recent_orders|length }}</div>
+            <small class="text-muted">Commandes</small>
+          </div>
+          <div class="text-center px-3 py-2 rounded-3" style="background:#fff5f5;">
+            <div class="fw-bold text-danger fs-5">{% if user.wishlist %}{{ user.wishlist.items.count }}{% else %}0{% endif %}</div>
+            <small class="text-muted">Favoris</small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Onglets -->
+  <ul class="nav nav-pills mb-4 gap-2" id="profileTabs">
+    <li class="nav-item">
+      <a class="nav-link active" data-bs-toggle="pill" href="#tab-info">
+        <i class="bi bi-person me-1"></i>Informations
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" data-bs-toggle="pill" href="#tab-orders">
+        <i class="bi bi-box-seam me-1"></i>Commandes
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" data-bs-toggle="pill" href="#tab-security">
+        <i class="bi bi-shield-lock me-1"></i>Sécurité
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" data-bs-toggle="pill" href="#tab-loyalty">
+        <i class="bi bi-trophy me-1"></i>Fidélité
+      </a>
+    </li>
+  </ul>
+
+  <div class="tab-content">
+
+    <!-- Onglet Informations -->
+    <div class="tab-pane fade show active" id="tab-info">
+      <div class="card profile-card">
+        <div class="card-body p-4">
+          <h5 class="fw-bold mb-4"><i class="bi bi-pencil-square me-2 text-primary"></i>Modifier mes informations</h5>
+          <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <input type="file" id="avatarInput" name="avatar" accept="image/*" style="display:none;" onchange="this.form.submit()">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Prénom</label>
+                <input type="text" name="first_name" class="form-control" value="{{ user.first_name }}" required>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Nom</label>
+                <input type="text" name="last_name" class="form-control" value="{{ user.last_name }}" required>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Téléphone</label>
+                <div class="input-group">
+                  <span class="input-group-text" style="border-radius:10px 0 0 10px;">🇹🇩 +235</span>
+                  <input type="tel" name="phone" class="form-control" value="{{ user.phone }}" placeholder="62 XX XX XX" style="border-radius:0 10px 10px 0;">
+                </div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Email</label>
+                <input type="email" class="form-control" value="{{ user.email }}" disabled style="background:#f8f9fa;">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Ville</label>
+                <select name="city" class="form-select">
+                  <option value="ndjamena" {% if user.city == "ndjamena" %}selected{% endif %}>N'Djamena</option>
+                  <option value="moundou" {% if user.city == "moundou" %}selected{% endif %}>Moundou</option>
+                  <option value="sarh" {% if user.city == "sarh" %}selected{% endif %}>Sarh</option>
+                  <option value="abeche" {% if user.city == "abeche" %}selected{% endif %}>Abéché</option>
+                  <option value="kelo" {% if user.city == "kelo" %}selected{% endif %}>Kélo</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Adresse</label>
+                <input type="text" name="address" class="form-control" value="{{ user.address|default:'' }}" placeholder="Votre quartier...">
+              </div>
+              <div class="col-12 mt-2">
+                <button type="submit" class="btn btn-save text-white">
+                  <i class="bi bi-save me-2"></i>Sauvegarder les modifications
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Onglet Commandes -->
+    <div class="tab-pane fade" id="tab-orders">
+      <div class="card profile-card">
+        <div class="card-body p-4">
+          <h5 class="fw-bold mb-4"><i class="bi bi-box-seam me-2 text-primary"></i>Mes commandes</h5>
+          {% for order in recent_orders %}
+          <div class="order-item">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <p class="mb-0 fw-bold">{{ order.reference }}</p>
+                <small class="text-muted"><i class="bi bi-calendar me-1"></i>{{ order.created_at|date:"d/m/Y à H:i" }}</small>
+              </div>
+              <div class="text-end">
+                <p class="mb-1 fw-bold text-primary">{{ order.total|floatformat:0 }} FCFA</p>
+                {% if order.status == "delivered" %}
+                  <span class="badge bg-success rounded-pill">✅ Livré</span>
+                {% elif order.status == "shipped" %}
+                  <span class="badge bg-info rounded-pill">🚚 En route</span>
+                {% elif order.status == "confirmed" %}
+                  <span class="badge bg-primary rounded-pill">✔ Confirmé</span>
+                {% elif order.status == "processing" %}
+                  <span class="badge bg-warning text-dark rounded-pill">📦 En préparation</span>
+                {% else %}
+                  <span class="badge bg-secondary rounded-pill">⏳ En attente</span>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+          {% empty %}
+          <div class="text-center py-5">
+            <i class="bi bi-bag-x fs-1 text-muted"></i>
+            <p class="text-muted mt-2">Aucune commande pour l'instant</p>
+            <a href="/produits/" class="btn btn-primary rounded-pill">Commencer mes achats</a>
+          </div>
+          {% endfor %}
+          {% if recent_orders %}
+          <a href="/commandes/" class="btn btn-outline-primary w-100 mt-2 rounded-pill">
+            Voir toutes mes commandes <i class="bi bi-arrow-right ms-1"></i>
+          </a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Onglet Sécurité -->
+    <div class="tab-pane fade" id="tab-security">
+      <div class="card profile-card">
+        <div class="card-body p-4">
+          <h5 class="fw-bold mb-4"><i class="bi bi-shield-lock me-2 text-primary"></i>Sécurité du compte</h5>
+          <div class="d-flex align-items-center justify-content-between p-3 rounded-3 mb-3" style="background:#f8f9ff; border:1px solid #e0eeff;">
+            <div>
+              <p class="fw-bold mb-0">Mot de passe</p>
+              <small class="text-muted">Dernière modification inconnue</small>
+            </div>
+            <a href="/compte/mot-de-passe-oublie/" class="btn btn-outline-primary btn-sm rounded-pill">
+              <i class="bi bi-key me-1"></i>Modifier
+            </a>
+          </div>
+          <div class="d-flex align-items-center justify-content-between p-3 rounded-3 mb-3" style="background:#f0fff4; border:1px solid #b2f5c8;">
+            <div>
+              <p class="fw-bold mb-0">Email vérifié</p>
+              <small class="text-success">{{ user.email }}</small>
+            </div>
+            <span class="badge bg-success rounded-pill">✅ Vérifié</span>
+          </div>
+          <div class="d-flex align-items-center justify-content-between p-3 rounded-3" style="background:#fff5f5; border:1px solid #ffd0d0;">
+            <div>
+              <p class="fw-bold mb-0 text-danger">Supprimer le compte</p>
+              <small class="text-muted">Cette action est irréversible</small>
+            </div>
+            <button class="btn btn-outline-danger btn-sm rounded-pill" onclick="return confirm('Êtes-vous sûr ?')">
+              <i class="bi bi-trash me-1"></i>Supprimer
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Onglet Fidélité -->
+    <div class="tab-pane fade" id="tab-loyalty">
+      <div class="card profile-card">
+        <div class="card-body p-4">
+          <h5 class="fw-bold mb-4"><i class="bi bi-trophy me-2 text-warning"></i>Programme de fidélité</h5>
+          {% if loyalty %}
+          <div class="text-center p-4 rounded-3 mb-4" style="background:linear-gradient(135deg,#f6d365,#fda085);">
+            <div class="display-4 fw-bold text-white">{{ loyalty.points }}</div>
+            <div class="text-white opacity-75">points accumulés</div>
+            <div class="badge bg-white text-warning mt-2 px-3 py-2 fs-6">{{ loyalty.get_level_display }}</div>
+          </div>
+          <div class="row g-3">
+            <div class="col-6">
+              <div class="card stat-card text-center p-3" style="background:#fff8e1;">
+                <i class="bi bi-star-fill text-warning fs-3"></i>
+                <div class="fw-bold mt-2">Bronze</div>
+                <small class="text-muted">0 - 499 pts</small>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="card stat-card text-center p-3" style="background:#e8f5e9;">
+                <i class="bi bi-star-fill text-success fs-3"></i>
+                <div class="fw-bold mt-2">Silver</div>
+                <small class="text-muted">500 - 999 pts</small>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="card stat-card text-center p-3" style="background:#e3f2fd;">
+                <i class="bi bi-star-fill text-primary fs-3"></i>
+                <div class="fw-bold mt-2">Gold</div>
+                <small class="text-muted">1000 - 4999 pts</small>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="card stat-card text-center p-3" style="background:#fce4ec;">
+                <i class="bi bi-star-fill text-danger fs-3"></i>
+                <div class="fw-bold mt-2">Platinum</div>
+                <small class="text-muted">5000+ pts</small>
+              </div>
+            </div>
+          </div>
+          {% else %}
+          <div class="text-center py-5">
+            <i class="bi bi-trophy fs-1 text-warning"></i>
+            <p class="text-muted mt-2">Passez votre première commande pour gagner des points !</p>
+            <a href="/produits/" class="btn btn-warning rounded-pill text-white">
+              <i class="bi bi-bag me-1"></i>Commencer mes achats
+            </a>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

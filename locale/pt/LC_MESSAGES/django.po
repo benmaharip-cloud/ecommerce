@@ -1,0 +1,27 @@
+# Translation file
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "Bienvenue sur ShopDjango"
+msgstr "Bem-vindo ao ShopDjango"
+
+msgid "Voir le catalogue"
+msgstr "Ver catalogo"
+
+msgid "Connexion"
+msgstr "Entrar"
+
+msgid "Deconnexion"
+msgstr "Sair"
+
+msgid "Rechercher..."
+msgstr "Pesquisar..."
+
+msgid "Voir tout"
+msgstr "Ver tudo"
+
+msgid "Livraison rapide"
+msgstr "Entrega rapida"
+

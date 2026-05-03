@@ -1,0 +1,161 @@
+
+<div id="captcha-container" class="border rounded-3 p-3 bg-light mb-3">
+  <div id="captcha-loading" class="text-center py-3">
+    <div class="spinner-border spinner-border-sm text-primary"></div>
+  </div>
+  <div id="captcha-body" style="display:none;">
+    <!-- Checkbox -->
+    <div id="cap-checkbox" style="display:none;">
+      <div class="d-flex align-items-center gap-3">
+        <div id="check-box" onclick="verifyCheckbox()"
+             class="border rounded d-flex align-items-center justify-content-center"
+             style="width:28px;height:28px;cursor:pointer;background:#fff;">
+          <i id="check-icon" class="bi bi-check2 text-success" style="display:none;font-size:1.2rem;"></i>
+        </div>
+        <span class="fw-semibold">Je ne suis pas un robot</span>
+        <img src="https://www.gstatic.com/recaptcha/api2/logo_48.png" height="38" class="ms-auto opacity-50" onerror="this.style.display='none'">
+      </div>
+    </div>
+    <!-- Math -->
+    <div id="cap-math" style="display:none;">
+      <p class="fw-semibold mb-2"><i class="bi bi-calculator me-2 text-primary"></i>Résolvez :</p>
+      <div class="d-flex align-items-center gap-2">
+        <span id="math-question" class="fs-4 fw-bold text-primary"></span>
+        <input type="number" id="math-answer" class="form-control w-25"
+               placeholder="?" oninput="checkMath()">
+        <span id="math-ok" class="text-success fw-bold" style="display:none;">✓</span>
+      </div>
+    </div>
+    <!-- Image click -->
+    <div id="cap-image-click" style="display:none;">
+      <p class="fw-semibold mb-2">
+        <i class="bi bi-cursor me-2 text-primary"></i>
+        Cliquez sur tous les : <span id="click-target" class="fs-4"></span>
+      </p>
+      <div id="click-grid" class="d-grid gap-2" style="grid-template-columns:repeat(3,1fr);"></div>
+      <button onclick="submitImageClick()" class="btn btn-primary btn-sm mt-2 w-100">Valider</button>
+    </div>
+    <!-- Image count -->
+    <div id="cap-image-count" style="display:none;">
+      <p class="fw-semibold mb-2">
+        <i class="bi bi-123 me-2 text-primary"></i>
+        Combien de <span id="count-target" class="fs-4"></span> voyez-vous ?
+      </p>
+      <div id="count-grid" class="d-grid gap-2 mb-2" style="grid-template-columns:repeat(3,1fr);"></div>
+      <div class="d-flex gap-2">
+        <input type="number" id="count-answer" class="form-control w-25" min="0" max="9" placeholder="?">
+        <button onclick="submitCount()" class="btn btn-primary btn-sm flex-grow-1">Valider</button>
+      </div>
+    </div>
+  </div>
+  <div id="captcha-success" class="text-center py-2" style="display:none;">
+    <i class="bi bi-shield-check-fill text-success fs-4 me-2"></i>
+    <span class="fw-semibold text-success">Vérification réussie !</span>
+  </div>
+  <div id="captcha-error" class="text-danger small mt-1" style="display:none;">
+    <i class="bi bi-x-circle me-1"></i>Incorrect, réessayez.
+  </div>
+</div>
+<input type="hidden" id="captcha-verified" name="captcha_verified" value="0">
+
+<script>
+let captchaData = {};
+let selectedCells = [];
+
+async function loadCaptcha() {
+  const types = ['checkbox','math','image_click','image_count'];
+  const type = types[Math.floor(Math.random()*types.length)];
+  const r = await fetch(`/captcha/get/?type=${type}`);
+  captchaData = await r.json();
+  document.getElementById('captcha-loading').style.display='none';
+  document.getElementById('captcha-body').style.display='block';
+  renderCaptcha();
+}
+
+function renderCaptcha() {
+  document.querySelectorAll('[id^="cap-"]').forEach(el => el.style.display='none');
+  if (captchaData.type === 'checkbox') {
+    document.getElementById('cap-checkbox').style.display='block';
+  } else if (captchaData.type === 'math') {
+    document.getElementById('cap-math').style.display='block';
+    document.getElementById('math-question').textContent = captchaData.question;
+  } else if (captchaData.type === 'image_click') {
+    document.getElementById('cap-image-click').style.display='block';
+    document.getElementById('click-target').textContent = captchaData.target;
+    const grid = document.getElementById('click-grid');
+    grid.innerHTML = captchaData.grid.map((em,i) =>
+      `<div onclick="toggleCell(this,${i})" class="border rounded text-center p-2 fs-3"
+            style="cursor:pointer;background:#fff;" data-idx="${i}">${em}</div>`
+    ).join('');
+    selectedCells = [];
+  } else if (captchaData.type === 'image_count') {
+    document.getElementById('cap-image-count').style.display='block';
+    document.getElementById('count-target').textContent = captchaData.target;
+    document.getElementById('count-grid').innerHTML = captchaData.grid.map(em =>
+      `<div class="border rounded text-center p-2 fs-3" style="background:#fff;">${em}</div>`
+    ).join('');
+  }
+}
+
+async function verifyCheckbox() {
+  document.getElementById('check-icon').style.display='block';
+  const r = await fetch('/captcha/verify/',{method:'POST',headers:{'Content-Type':'application/json','X-CSRFToken':getCookie('csrftoken')},body:JSON.stringify({answer:captchaData.token})});
+  const d = await r.json();
+  if(d.success) showSuccess(); else loadCaptcha();
+}
+
+function checkMath() {
+  const val = document.getElementById('math-answer').value;
+  if(val !== '') submitMath();
+}
+
+async function submitMath() {
+  const val = document.getElementById('math-answer').value;
+  const r = await fetch('/captcha/verify/',{method:'POST',headers:{'Content-Type':'application/json','X-CSRFToken':getCookie('csrftoken')},body:JSON.stringify({answer:val})});
+  const d = await r.json();
+  if(d.success){document.getElementById('math-ok').style.display='inline';showSuccess();}
+  else{showError();setTimeout(loadCaptcha,1000);}
+}
+
+function toggleCell(el, idx) {
+  if(selectedCells.includes(idx)){
+    selectedCells = selectedCells.filter(i=>i!==idx);
+    el.style.background='#fff'; el.style.outline='none';
+  } else {
+    selectedCells.push(idx);
+    el.style.background='#cfe2ff'; el.style.outline='2px solid #0d6efd';
+  }
+}
+
+async function submitImageClick() {
+  const r = await fetch('/captcha/verify/',{method:'POST',headers:{'Content-Type':'application/json','X-CSRFToken':getCookie('csrftoken')},body:JSON.stringify({answer:JSON.stringify(selectedCells.sort())})});
+  const d = await r.json();
+  if(d.success) showSuccess(); else{showError();setTimeout(loadCaptcha,1000);}
+}
+
+async function submitCount() {
+  const val = document.getElementById('count-answer').value;
+  const r = await fetch('/captcha/verify/',{method:'POST',headers:{'Content-Type':'application/json','X-CSRFToken':getCookie('csrftoken')},body:JSON.stringify({answer:val})});
+  const d = await r.json();
+  if(d.success) showSuccess(); else{showError();setTimeout(loadCaptcha,1000);}
+}
+
+function showSuccess() {
+  document.getElementById('captcha-body').style.display='none';
+  document.getElementById('captcha-error').style.display='none';
+  document.getElementById('captcha-success').style.display='block';
+  document.getElementById('captcha-verified').value='1';
+}
+
+function showError() {
+  document.getElementById('captcha-error').style.display='block';
+  setTimeout(()=>document.getElementById('captcha-error').style.display='none', 2000);
+}
+
+function getCookie(name) {
+  const v = document.cookie.match('(^|;)\\s*'+name+'\\s*=\\s*([^;]+)');
+  return v ? v.pop() : '';
+}
+
+loadCaptcha();
+</script>

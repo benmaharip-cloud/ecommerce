@@ -1,0 +1,75 @@
+{% extends "base/base.html" %}
+{% block title %}Politique de confidentialité — ShopDjango{% endblock %}
+{% block content %}
+<div class="container py-5" style="max-width:800px;">
+  <div class="text-center mb-5">
+    <i class="bi bi-lock text-secondary" style="font-size:3rem;"></i>
+    <h2 class="fw-bold mt-3">Politique de confidentialité</h2>
+    <p class="text-muted">ShopDjango — Votre boutique de confiance au Tchad</p>
+  </div>
+  <div class="accordion">
+  <div class="accordion-item border-0 shadow-sm mb-3 rounded-3 overflow-hidden">
+    <h2 class="accordion-header">
+      <button class="accordion-button  fw-semibold" type="button"
+              data-bs-toggle="collapse" data-bs-target="#q0">
+        Données collectées
+      </button>
+    </h2>
+    <div id="q0" class="accordion-collapse collapse show">
+      <div class="accordion-body text-muted">Nous collectons uniquement les informations nécessaires : nom, email, adresse de livraison et historique de commandes.</div>
+    </div>
+  </div>
+  <div class="accordion-item border-0 shadow-sm mb-3 rounded-3 overflow-hidden">
+    <h2 class="accordion-header">
+      <button class="accordion-button collapsed fw-semibold" type="button"
+              data-bs-toggle="collapse" data-bs-target="#q1">
+        Utilisation des données
+      </button>
+    </h2>
+    <div id="q1" class="accordion-collapse collapse ">
+      <div class="accordion-body text-muted">Vos données sont utilisées pour traiter vos commandes, personnaliser votre expérience et vous envoyer des offres pertinentes.</div>
+    </div>
+  </div>
+  <div class="accordion-item border-0 shadow-sm mb-3 rounded-3 overflow-hidden">
+    <h2 class="accordion-header">
+      <button class="accordion-button collapsed fw-semibold" type="button"
+              data-bs-toggle="collapse" data-bs-target="#q2">
+        Partage des données
+      </button>
+    </h2>
+    <div id="q2" class="accordion-collapse collapse ">
+      <div class="accordion-body text-muted">Nous ne vendons jamais vos données. Elles peuvent être partagées uniquement avec nos partenaires de livraison.</div>
+    </div>
+  </div>
+  <div class="accordion-item border-0 shadow-sm mb-3 rounded-3 overflow-hidden">
+    <h2 class="accordion-header">
+      <button class="accordion-button collapsed fw-semibold" type="button"
+              data-bs-toggle="collapse" data-bs-target="#q3">
+        Cookies
+      </button>
+    </h2>
+    <div id="q3" class="accordion-collapse collapse ">
+      <div class="accordion-body text-muted">Nous utilisons des cookies pour améliorer votre expérience. Vous pouvez les désactiver dans votre navigateur.</div>
+    </div>
+  </div>
+  <div class="accordion-item border-0 shadow-sm mb-3 rounded-3 overflow-hidden">
+    <h2 class="accordion-header">
+      <button class="accordion-button collapsed fw-semibold" type="button"
+              data-bs-toggle="collapse" data-bs-target="#q4">
+        Vos droits
+      </button>
+    </h2>
+    <div id="q4" class="accordion-collapse collapse ">
+      <div class="accordion-body text-muted">Vous pouvez demander la suppression de vos données à tout moment en nous contactant via le chat ou par email.</div>
+    </div>
+  </div></div>
+  <div class="card border-0 bg-light mt-4">
+    <div class="card-body text-center py-4">
+      <p class="mb-2 fw-semibold">Vous n'avez pas trouvé votre réponse ?</p>
+      <a href="/chat/mon-chat/" class="btn btn-primary">
+        <i class="bi bi-chat-dots me-2"></i>Chattez avec nous
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}

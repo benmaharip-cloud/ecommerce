@@ -1,0 +1,47 @@
+{% load static %}
+<section class="py-4" id="reco-section" data-product-id="{{ product_id|default:'' }}">
+  <div class="container">
+    <h5 class="fw-bold mb-3">
+      <i class="bi bi-stars text-warning me-2"></i>{{ title|default:"Recommandés pour vous" }}
+    </h5>
+    <div id="reco-grid" class="row g-3">
+      <div class="col-12 text-center py-3">
+        <div class="spinner-border spinner-border-sm text-primary"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+(function(){
+  const section = document.getElementById("reco-section");
+  const productId = section.dataset.productId;
+  let url = "/api/recommendations/";
+  if (productId) url += "?product_id=" + productId;
+
+  fetch(url)
+    .then(r => r.json())
+    .then(data => {
+      const grid = document.getElementById("reco-grid");
+      if (!data.recommendations || data.recommendations.length === 0) {
+        section.style.display = "none";
+        return;
+      }
+      grid.innerHTML = data.recommendations.map(p => `
+        <div class="col-6 col-md-4 col-lg-2">
+          <a href="${p.url}" class="text-decoration-none">
+            <div class="card border-0 shadow-sm h-100 product-card">
+              <img src="${p.image || '/static/img/no-image.png'}" class="card-img-top"
+                   style="height:140px;object-fit:cover;" alt="${p.name}"
+                   onerror="this.src='/static/img/no-image.png'">
+              <div class="card-body p-2">
+                <p class="small fw-semibold mb-1 text-truncate text-dark">${p.name}</p>
+                <span class="text-primary fw-bold small">${parseFloat(p.price).toLocaleString('fr-FR')} FCFA</span>
+              </div>
+            </div>
+          </a>
+        </div>`).join("");
+    })
+    .catch(() => { document.getElementById("reco-section").style.display = "none"; });
+})();
+</script>

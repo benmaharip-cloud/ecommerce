@@ -1,0 +1,116 @@
+{% extends "base/base.html" %}
+{% load i18n %}
+{% block title %}Passer commande — ShopDjango{% endblock %}
+{% block content %}
+<div class="container" style="max-width:900px;">
+  <h2 class="fw-bold mb-4"><i class="bi bi-lock me-2"></i>Passer commande</h2>
+  <form method="post">
+    {% csrf_token %}
+    <div class="row g-4">
+      <div class="col-md-7">
+        <div class="card border-0 shadow-sm mb-3">
+          <div class="card-body">
+            <h5 class="fw-semibold mb-3">Adresse de livraison</h5>
+            <div class="mb-3">
+              <label class="form-label">Adresse complète</label>
+              <textarea name="shipping_address" class="form-control" rows="2" required placeholder="Rue, quartier..."></textarea>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Ville</label>
+              <input type="text" name="shipping_city" class="form-control" value="NDjamena" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Notes (optionnel)</label>
+              <textarea name="notes" class="form-control" rows="2" placeholder="Instructions spéciales..."></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="card border-0 shadow-sm mb-3">
+          <div class="card-body">
+            <h5 class="fw-semibold mb-3">Zone de livraison</h5>
+            {% for zone in zones %}
+            <div class="form-check mb-2">
+              <input class="form-check-input" type="radio" name="zone_id" id="zone{{ zone.id }}" value="{{ zone.id }}" {% if forloop.first %}checked{% endif %}>
+              <label class="form-check-label" for="zone{{ zone.id }}">
+                {{ zone.name }} — {{ zone.city }} : <strong>{{ zone.price|floatformat:0 }} FCFA</strong>
+                <small class="text-muted">({{ zone.estimated_days }} jours)</small>
+              </label>
+            </div>
+            {% empty %}
+            <p class="text-muted">Livraison standard gratuite</p>
+            <input type="hidden" name="zone_id" value="">
+            {% endfor %}
+          </div>
+        </div>
+        <div class="card border-0 shadow-sm">
+          <div class="card-body">
+            <h5 class="fw-semibold mb-3">Mode de paiement</h5>
+            <div class="form-check mb-2">
+              <input class="form-check-input" type="radio" name="payment_method" id="cash" value="cash" checked>
+              <label class="form-check-label" for="cash"><i class="bi bi-cash me-2"></i>Paiement à la livraison</label>
+            </div>
+            <div class="form-check mb-2">
+              <input class="form-check-input" type="radio" name="payment_method" id="mobile" value="mobile_money" onclick="document.getElementById('mm-fields').style.display='block'">
+              <label class="form-check-label" for="mobile"><i class="bi bi-phone me-2"></i>Mobile Money (Orange, Wave)</label>
+            </div>
+            <div id="mm-fields" style="display:none;" class="ms-4 mt-2 p-3 bg-light rounded">
+              <div class="mb-2">
+                <label class="form-label small fw-semibold">Fournisseur</label>
+                <select name="mm_provider" class="form-select form-select-sm">
+                  <option value="orange">Orange Money</option>
+                  <option value="wave">Wave</option>
+                  <option value="airtel">Airtel Money</option>
+                </select>
+              </div>
+              <div class="mb-2">
+                <label class="form-label small fw-semibold">Numéro de téléphone</label>
+                <input type="tel" name="mm_phone" class="form-control form-control-sm" placeholder="ex: 66XXXXXXX">
+              </div>
+              <div class="alert alert-warning py-2 small mb-0">
+                <i class="bi bi-info-circle me-1"></i>
+                Vous recevrez un SMS de confirmation sur ce numéro.
+              </div>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="payment_method" id="stripe" value="stripe">
+              <label class="form-check-label" for="stripe"><i class="bi bi-credit-card me-2"></i>Carte bancaire (Stripe)</label>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-5">
+        <div class="card border-0 shadow-sm">
+          <div class="card-body">
+            <h5 class="fw-semibold mb-3">Récapitulatif</h5>
+            {% for item in cart %}
+            <div class="d-flex justify-content-between mb-2 small">
+              <span>{{ item.name }} × {{ item.quantity }}</span>
+              <span class="fw-semibold">{{ item.price|floatformat:0 }} FCFA</span>
+            </div>
+            {% endfor %}
+            <hr>
+            <div class="d-flex justify-content-between mb-1">
+              <span class="text-muted">Sous-total</span>
+              <span>{{ cart.subtotal|floatformat:0 }} FCFA</span>
+            </div>
+            {% if cart.discount_amount %}
+            <div class="d-flex justify-content-between mb-1 text-success">
+              <span>Réduction</span>
+              <span>-{{ cart.discount_amount|floatformat:0 }} FCFA</span>
+            </div>
+            {% endif %}
+            <hr>
+            <div class="d-flex justify-content-between fw-bold fs-5 mb-3">
+              <span>Total</span>
+              <span class="text-primary">{{ cart.total|floatformat:0 }} FCFA</span>
+            </div>
+            <button type="submit" class="btn btn-primary w-100 btn-lg">
+              <i class="bi bi-lock me-2"></i>Confirmer la commande
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+{% endblock %}

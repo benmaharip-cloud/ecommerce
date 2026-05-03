@@ -1,0 +1,337 @@
+{% extends 'base/base.html' %}
+{% load i18n static %}
+
+{% block title %}ShopDjango — {% trans 'Boutique en ligne au Tchad' %}{% endblock %}
+
+{% block content %}
+<div class="container">
+
+
+<style>
+@keyframes fadeInUp { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
+@keyframes fadeInRight { from{opacity:0;transform:translateX(30px)} to{opacity:1;transform:translateX(0)} }
+@keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-15px)} }
+@keyframes pulse-ring { 0%{transform:scale(1)} 50%{transform:scale(1.05)} 100%{transform:scale(1)} }
+@keyframes slideIn { from{opacity:0;transform:translateX(-20px)} to{opacity:1;transform:translateX(0)} }
+.hero-section { background: linear-gradient(135deg, #0a0f3c 0%, #0d6efd 50%, #0dcaf0 100%); position:relative; overflow:hidden; border-radius:24px; min-height:400px; }
+.hero-section::before { content:''; position:absolute; top:-50%; right:-10%; width:600px; height:600px; background:rgba(255,255,255,0.03); border-radius:50%; }
+.hero-section::after { content:''; position:absolute; bottom:-30%; left:-5%; width:400px; height:400px; background:rgba(255,255,255,0.03); border-radius:50%; }
+.hero-title { animation: fadeInUp 0.8s ease forwards; }
+.hero-subtitle { animation: fadeInUp 0.8s ease 0.2s forwards; opacity:0; }
+.hero-btn { animation: fadeInUp 0.8s ease 0.4s forwards; opacity:0; }
+.hero-icon { animation: float 3s ease-in-out infinite; }
+.hero-badge { animation: fadeInRight 0.8s ease 0.6s forwards; opacity:0; }
+.stat-counter { animation: fadeInUp 0.8s ease 0.8s forwards; opacity:0; }
+.category-card { transition: transform 0.3s, box-shadow 0.3s; }
+.category-card:hover { transform: translateY(-5px); box-shadow: 0 12px 30px rgba(13,110,253,0.15) !important; }
+.product-card { transition: transform 0.3s, box-shadow 0.3s; }
+.product-card:hover { transform: translateY(-5px); box-shadow: 0 12px 30px rgba(0,0,0,0.12) !important; }
+.promo-ticker { background: linear-gradient(135deg, #ff6b35, #f7c59f); overflow: hidden; }
+.ticker-content { display: flex; animation: ticker 20s linear infinite; white-space: nowrap; }
+@keyframes ticker { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+.section-title { position: relative; display: inline-block; }
+.section-title::after { content:''; position:absolute; bottom:-5px; left:0; width:100%; height:3px; background:linear-gradient(135deg,#0d6efd,#0dcaf0); border-radius:2px; }
+</style>
+
+<!-- Ticker promotionnel -->
+<div class="promo-ticker py-2 mb-3 rounded-3">
+  <div class="ticker-content">
+    <span class="text-white fw-semibold me-5">🎁 Code BIENVENUE15 — 15% de réduction</span>
+    <span class="text-white fw-semibold me-5">🚚 Livraison gratuite dès 50 000 FCFA</span>
+    <span class="text-white fw-semibold me-5">📱 Orange Money & Wave acceptés</span>
+    <span class="text-white fw-semibold me-5">⭐ Retours gratuits sous 30 jours</span>
+    <span class="text-white fw-semibold me-5">🎁 Code BIENVENUE15 — 15% de réduction</span>
+    <span class="text-white fw-semibold me-5">🚚 Livraison gratuite dès 50 000 FCFA</span>
+    <span class="text-white fw-semibold me-5">📱 Orange Money & Wave acceptés</span>
+    <span class="text-white fw-semibold me-5">⭐ Retours gratuits sous 30 jours</span>
+  </div>
+</div>
+
+<!-- Hero Banner Animé -->
+<div class="hero-section p-5 mb-4 text-white">
+  <div class="row align-items-center" style="position:relative;z-index:1;">
+    <div class="col-md-7">
+      <div class="hero-badge mb-3">
+        <span class="badge px-3 py-2 rounded-pill" style="background:rgba(255,255,255,0.2);">
+          🇹🇩 N°1 au Tchad
+        </span>
+      </div>
+      <h1 class="display-4 fw-bold hero-title" style="line-height:1.2;">
+        Bienvenue sur<br>
+        <span style="background:linear-gradient(135deg,#fff,#a0d0ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">
+          ShopDjango
+        </span>
+      </h1>
+      <p class="fs-5 hero-subtitle" style="opacity:0.9;">
+        🚚 Livraison rapide partout au Tchad<br>
+        📱 Mobile Money accepté
+      </p>
+      <div class="hero-btn d-flex gap-3 flex-wrap">
+        <a href="{% url 'products:list' %}" class="btn btn-light btn-lg fw-bold rounded-pill px-4">
+          <i class="bi bi-shop me-2"></i>Voir le catalogue
+        </a>
+        <a href="/commandes/suivi/" class="btn btn-outline-light btn-lg rounded-pill px-4">
+          <i class="bi bi-geo-alt me-2"></i>Suivre ma commande
+        </a>
+      </div>
+      <!-- Stats -->
+      <div class="stat-counter d-flex gap-4 mt-4 flex-wrap">
+        <div class="text-center">
+          <div class="fw-bold fs-4">{{ total_products }}+</div>
+          <small style="opacity:0.75;">Produits</small>
+        </div>
+        <div class="text-center">
+          <div class="fw-bold fs-4">{{ total_orders }}+</div>
+          <small style="opacity:0.75;">Commandes</small>
+        </div>
+        <div class="text-center">
+          <div class="fw-bold fs-4">{{ total_clients }}+</div>
+          <small style="opacity:0.75;">Clients</small>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-5 text-center d-none d-md-block">
+      <div class="hero-icon position-relative">
+        <div style="width:220px;height:220px;background:rgba(255,255,255,0.1);border-radius:50%;margin:auto;display:flex;align-items:center;justify-content:center;">
+          <div style="width:160px;height:160px;background:rgba(255,255,255,0.15);border-radius:50%;display:flex;align-items:center;justify-content:center;">
+            <i class="bi bi-bag-heart-fill" style="font-size:80px;opacity:0.9;"></i>
+          </div>
+        </div>
+        <!-- Badges flottants -->
+        <div class="position-absolute" style="top:10px;right:20px;animation:fadeInRight 1s ease 1s forwards;opacity:0;">
+          <span class="badge bg-success rounded-pill px-3 py-2">✅ Paiement sécurisé</span>
+        </div>
+        <div class="position-absolute" style="bottom:20px;left:10px;animation:fadeInUp 1s ease 1.2s forwards;opacity:0;">
+          <span class="badge bg-warning text-dark rounded-pill px-3 py-2">🚚 Livraison rapide</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+  <!-- Catégories -->
+  <h4 class="mb-3 fw-semibold">{% trans 'Catégories' %}</h4>
+  <div class="row g-3 mb-5 categories-grid">
+    {% for category in categories %}
+    <div class="col-6 col-md-3 col-lg-2">
+      <a href="{% url 'products:list' %}?category={{ category.slug }}" class="text-decoration-none">
+        <div class="card text-center border-0 shadow-sm h-100 hover-shadow">
+          <div class="card-body">
+            {% if category.image %}
+            <img src="{{ category.image.url }}" alt="{{ category.name }}" class="rounded-circle mb-2" style="width:60px;height:60px;object-fit:cover;">
+            {% else %}
+            <div class="rounded-circle bg-primary bg-opacity-10 mx-auto mb-2 d-flex align-items-center justify-content-center" style="width:60px;height:60px;">
+              <i class="bi bi-grid text-primary fs-4"></i>
+            </div>
+            {% endif %}
+            <p class="card-text small fw-semibold text-dark">{{ category.name }}</p>
+          </div>
+        </div>
+      </a>
+    </div>
+    {% endfor %}
+  </div>
+
+  
+  <!-- ===== OFFRES DU JOUR ===== -->
+  <div class="d-flex justify-content-between align-items-center mb-3 mt-2">
+    <div class="d-flex align-items-center gap-2">
+      <h4 class="fw-bold mb-0 text-danger">🔥 Offres du jour</h4>
+      <div class="d-flex align-items-center gap-1 ms-2">
+        <span class="badge bg-danger px-2 py-1">Se termine dans</span>
+        <span class="badge bg-dark px-2 py-1 fs-6" id="timer-h">00</span>
+        <span class="text-danger fw-bold">:</span>
+        <span class="badge bg-dark px-2 py-1 fs-6" id="timer-m">00</span>
+        <span class="text-danger fw-bold">:</span>
+        <span class="badge bg-dark px-2 py-1 fs-6" id="timer-s">00</span>
+      </div>
+    </div>
+    <a href="/produits/?sort=discount" class="btn btn-outline-danger btn-sm">Voir tout</a>
+  </div>
+  <div class="row g-3 mb-5" id="offres-grid">
+    {% for product in discounted_products %}
+    <div class="col-6 col-md-3">
+      <a href="/produits/{{ product.slug }}/" class="text-decoration-none">
+        <div class="card border-0 shadow-sm h-100 position-relative">
+          <div class="position-absolute top-0 start-0 m-2 z-1">
+            <span class="badge bg-danger">-{{ product.discount_percent }}%</span>
+          </div>
+          {% if product.images.first %}
+          <img src="{{ product.images.first.image.url }}" class="card-img-top"
+               style="height:160px;object-fit:cover;" alt="{{ product.name }}">
+          {% else %}
+          <div class="bg-light d-flex align-items-center justify-content-center" style="height:160px;">
+            <i class="bi bi-image text-muted fs-2"></i>
+          </div>
+          {% endif %}
+          <div class="card-body p-2">
+            <p class="small fw-semibold mb-1 text-dark text-truncate">{{ product.name }}</p>
+            <div>
+              <span class="text-danger fw-bold">{{ product.discount_price|floatformat:0 }} F</span>
+              <span class="text-muted text-decoration-line-through small ms-1">{{ product.price|floatformat:0 }}</span>
+            </div>
+            <div class="progress mt-1" style="height:4px;">
+              <div class="progress-bar bg-danger" style="width:{{ product.stock_percent|default:70 }}%"></div>
+            </div>
+            <small class="text-muted" style="font-size:0.7rem;">Stock limité</small>
+          </div>
+        </div>
+      </a>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- ===== BEST SELLERS ===== -->
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="fw-bold mb-0">⭐ Best-sellers</h4>
+    <a href="/produits/" class="btn btn-outline-primary btn-sm">Voir tout</a>
+  </div>
+  <div class="row g-3 mb-5">
+    {% for product in best_sellers %}
+    <div class="col-6 col-md-2">
+      <a href="/produits/{{ product.slug }}/" class="text-decoration-none">
+        <div class="card border-0 shadow-sm h-100">
+          {% if product.images.first %}
+          <img src="{{ product.images.first.image.url }}" class="card-img-top"
+               style="height:130px;object-fit:cover;">
+          {% else %}
+          <div class="bg-light d-flex align-items-center justify-content-center" style="height:130px;">
+            <i class="bi bi-image text-muted fs-3"></i>
+          </div>
+          {% endif %}
+          <div class="card-body p-2">
+            <p class="small fw-semibold mb-0 text-dark text-truncate">{{ product.name }}</p>
+            <span class="text-primary fw-bold small">{{ product.price|floatformat:0 }} F</span>
+            {% if product.total_sold %}
+            <div><small class="text-muted" style="font-size:0.7rem;">{{ product.total_sold }} vendus</small></div>
+            {% endif %}
+          </div>
+        </div>
+      </a>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- ===== COUPONS ACTIFS ===== -->
+  <div class="card border-0 shadow-sm mb-5" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+    <div class="card-body py-3">
+      <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <div class="text-white">
+          <h5 class="fw-bold mb-1">🎁 Codes promo actifs</h5>
+          <p class="mb-0 opacity-75 small">Utilisez ces codes à la caisse pour économiser</p>
+        </div>
+        <div class="d-flex gap-2 flex-wrap">
+          {% for coupon in active_coupons %}
+          <div class="bg-white rounded-3 px-3 py-2 text-center" style="min-width:120px;cursor:pointer;"
+               onclick="navigator.clipboard.writeText('{{ coupon.code }}').then(()=>alert('Code {{ coupon.code }} copié !'))">
+            <div class="fw-bold text-primary">{{ coupon.code }}</div>
+            <div class="small text-danger">
+              {% if coupon.discount_type == 'percentage' %}-{{ coupon.discount_value|floatformat:0 }}%
+              {% else %}-{{ coupon.discount_value|floatformat:0 }} F{% endif %}
+            </div>
+            <div class="text-muted" style="font-size:0.65rem;">Cliquer pour copier</div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+// Timer offres du jour — repart à minuit
+function updateTimer() {
+  const now = new Date();
+  const midnight = new Date(now);
+  midnight.setHours(24, 0, 0, 0);
+  const diff = Math.floor((midnight - now) / 1000);
+  const h = Math.floor(diff / 3600).toString().padStart(2, '0');
+  const m = Math.floor((diff % 3600) / 60).toString().padStart(2, '0');
+  const s = (diff % 60).toString().padStart(2, '0');
+  document.getElementById('timer-h').textContent = h;
+  document.getElementById('timer-m').textContent = m;
+  document.getElementById('timer-s').textContent = s;
+}
+updateTimer();
+setInterval(updateTimer, 1000);
+</script>
+
+  <!-- Produits en vedette -->
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="fw-semibold mb-0">{% trans 'Produits en vedette' %}</h4>
+    <a href="{% url 'products:list' %}" class="btn btn-outline-primary btn-sm">{% trans 'Voir tout' %}</a>
+  </div>
+  <div class="row g-3 mb-5">
+    {% for product in featured_products %}
+    {% include 'products/_product_card.html' %}
+    {% empty %}
+    <div class="col-12 text-center text-muted py-4">{% trans 'Aucun produit pour le moment' %}</div>
+    {% endfor %}
+  </div>
+
+  <!-- Nouvelles arrivées -->
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="fw-semibold mb-0">{% trans 'Nouvelles arrivées' %}</h4>
+    <a href="{% url 'products:list' %}?sort=newest" class="btn btn-outline-primary btn-sm">{% trans 'Voir tout' %}</a>
+  </div>
+  <div class="row g-3 mb-5">
+    {% for product in new_arrivals %}
+    {% include 'products/_product_card.html' %}
+    {% endfor %}
+  </div>
+
+  <!-- Recommandations IA -->
+  {% if recommended %}
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="fw-semibold mb-0"><i class="bi bi-stars text-warning me-2"></i>{% trans 'Recommandés pour vous' %}</h4>
+    <span class="badge bg-warning text-dark">IA</span>
+  </div>
+  <div class="row g-3 mb-5">
+    {% for product in recommended %}
+    {% include 'products/_product_card.html' %}
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- Bannières services -->
+  <div class="row g-3 mb-4">
+    <div class="col-md-3">
+      <a href="/livraison/" class="text-decoration-none text-dark">
+      <div class="card border-0 bg-primary bg-opacity-10 text-center p-3 h-100">
+        <i class="bi bi-truck fs-2 text-primary mb-2"></i>
+        <h6>{% trans 'Livraison rapide' %}</h6>
+        <small class="text-muted">{% trans 'Partout au Tchad' %}</small>
+      </div>
+      </a>
+    </div>
+    <div class="col-md-3">
+      <a href="/panier/" class="text-decoration-none text-dark">
+      <div class="card border-0 bg-success bg-opacity-10 text-center p-3 h-100">
+        <i class="bi bi-shield-check fs-2 text-success mb-2"></i>
+        <h6>{% trans 'Paiement sécurisé' %}</h6>
+        <small class="text-muted">{% trans 'Stripe & Mobile Money' %}</small>
+      </div>
+      </a>
+    </div>
+    <div class="col-md-3">
+      <a href="/retours/" class="text-decoration-none text-dark">
+      <div class="card border-0 bg-warning bg-opacity-10 text-center p-3 h-100">
+        <i class="bi bi-arrow-repeat fs-2 text-warning mb-2"></i>
+        <h6>{% trans 'Retours faciles' %}</h6>
+        <small class="text-muted">{% trans '30 jours pour retourner' %}</small>
+      </div>
+      </a>
+    </div>
+    <div class="col-md-3">
+      <a href="/chat/support/" class="text-decoration-none text-dark">
+      <div class="card border-0 bg-info bg-opacity-10 text-center p-3 h-100">
+        <i class="bi bi-headset fs-2 text-info mb-2"></i>
+        <h6>{% trans 'Support 24/7' %}</h6>
+        <small class="text-muted">{% trans 'Chat en direct' %}</small>
+      </div>
+      </a>
+    </div>
+  </div>
+
+</div>
+{% include "recommendations/widget.html" with title="Pour vous" %}
+{% endblock %}

@@ -1,0 +1,61 @@
+{% load i18n %}
+<div class="col-6 col-md-4 col-lg-3">
+  <div class="card h-100 border-0 shadow-sm product-card product-hover-card">
+    <div class="position-relative overflow-hidden" style="height:200px;">
+      {% if product.images.first %}
+        <img src="{{ product.images.first.image.url }}" class="card-img-top w-100 h-100"
+             alt="{{ product.name }}" style="object-fit:cover;">
+      {% else %}
+        <div class="bg-light d-flex align-items-center justify-content-center w-100 h-100">
+          <i class="bi bi-image text-muted fs-1"></i>
+        </div>
+      {% endif %}
+
+      {% if product.discount_price %}
+        <span class="badge bg-danger position-absolute top-0 start-0 m-2">
+          -{{ product.discount_percent }}%
+        </span>
+      {% endif %}
+      {% if product.is_featured %}
+        <span class="badge bg-warning text-dark position-absolute top-0 end-0 m-2">Nouveau</span>
+      {% endif %}
+
+      <!-- Overlay hover -->
+      <div class="product-overlay position-absolute top-0 start-0 w-100 h-100
+                  d-flex flex-column align-items-center justify-content-end pb-2"
+           style="background:rgba(0,0,0,0.4);opacity:0;transition:opacity .2s;">
+        <button class="btn btn-light btn-sm w-75 mb-1 fw-semibold preview-btn"
+                data-id="{{ product.pk }}" data-slug="{{ product.slug }}">
+          <i class="bi bi-eye me-1"></i>Aperçu
+        </button>
+        <button class="btn btn-outline-light btn-sm w-75 similar-btn"
+                data-id="{{ product.pk }}">
+          <i class="bi bi-grid me-1"></i>Articles similaires
+        </button>
+      </div>
+    </div>
+
+    <div class="card-body p-2">
+      <small class="text-muted">{{ product.category.name }}</small>
+      <h6 class="card-title fw-semibold text-truncate mb-1">
+        <a href="{% url 'products:detail' product.slug %}" class="text-decoration-none text-dark">
+          {{ product.name }}
+        </a>
+      </h6>
+      <div class="d-flex align-items-center gap-1 mb-1">
+        {% for i in "12345" %}
+          <i class="bi bi-star{% if forloop.counter <= product.average_rating %}-fill text-warning{% else %} text-muted{% endif %}" style="font-size:.75rem;"></i>
+        {% endfor %}
+        <small class="text-muted">({{ product.review_count|default:0 }})</small>
+      </div>
+      <div>
+        {% if product.discount_price %}
+          <span class="text-primary fw-bold">{{ product.discount_price|floatformat:0 }} FCFA</span>
+          <span class="text-muted text-decoration-line-through small ms-1">{{ product.price|floatformat:0 }}</span>
+        {% else %}
+          <span class="text-primary fw-bold">{{ product.price|floatformat:0 }} FCFA</span>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>

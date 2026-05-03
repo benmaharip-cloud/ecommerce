@@ -1,0 +1,201 @@
+{% extends 'base/base.html' %}
+{% block title %}Suivi Commande — ShopDjango{% endblock %}
+{% block content %}
+<style>
+  .tracking-hero { background: linear-gradient(135deg, #0d6efd, #0099ff); padding: 3rem 0; }
+  .tracking-card { border-radius: 20px; border: none; box-shadow: 0 8px 30px rgba(0,0,0,0.08); }
+  .step { position: relative; padding-left: 50px; margin-bottom: 2rem; }
+  .step::before { content: ''; position: absolute; left: 18px; top: 40px; width: 2px; height: calc(100% + 10px); background: #e0e0e0; }
+  .step:last-child::before { display: none; }
+  .step-icon { position: absolute; left: 0; top: 0; width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; z-index: 1; }
+  .step-done .step-icon { background: linear-gradient(135deg, #28a745, #20c997); color: white; }
+  .step-active .step-icon { background: linear-gradient(135deg, #0d6efd, #0099ff); color: white; animation: pulse 2s infinite; }
+  .step-pending .step-icon { background: #f0f0f0; color: #aaa; }
+  .step-done::before { background: #28a745; }
+  @keyframes pulse { 0%,100%{box-shadow:0 0 0 0 rgba(13,110,253,0.4)} 50%{box-shadow:0 0 0 10px rgba(13,110,253,0)} }
+</style>
+
+<div class="tracking-hero text-white text-center">
+  <h2 class="fw-bold">📦 Suivi de Commande</h2>
+  <p class="opacity-75">Suivez votre commande en temps réel</p>
+</div>
+
+<div class="container py-5" style="max-width:800px;">
+
+  <!-- Recherche commande -->
+  {% if not order %}
+  <div class="card tracking-card p-4 mb-4">
+    <h5 class="fw-bold mb-3"><i class="bi bi-search me-2 text-primary"></i>Rechercher ma commande</h5>
+    <form method="get">
+      <div class="input-group">
+        <input type="text" name="ref" class="form-control form-control-lg"
+               placeholder="Entrez votre référence (ex: CMD-XXXXXXXX)"
+               style="border-radius:12px 0 0 12px; border:1.5px solid #e0e0e0;"
+               value="{{ request.GET.ref }}">
+        <button type="submit" class="btn btn-primary btn-lg" style="border-radius:0 12px 12px 0;">
+          <i class="bi bi-search me-1"></i>Rechercher
+        </button>
+      </div>
+    </form>
+    {% if error %}
+    <div class="alert alert-danger mt-3 rounded-3">
+      <i class="bi bi-exclamation-triangle me-2"></i>{{ error }}
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Commandes récentes -->
+  {% if user.is_authenticated and recent_orders %}
+  <div class="card tracking-card p-4">
+    <h5 class="fw-bold mb-3"><i class="bi bi-clock-history me-2 text-primary"></i>Mes commandes récentes</h5>
+    {% for o in recent_orders %}
+    <a href="?ref={{ o.reference }}" class="text-decoration-none">
+      <div class="d-flex justify-content-between align-items-center p-3 rounded-3 mb-2"
+           style="background:#f8f9ff; border:1px solid #e0eeff;">
+        <div>
+          <p class="fw-bold mb-0 text-dark">{{ o.reference }}</p>
+          <small class="text-muted">{{ o.created_at|date:"d/m/Y" }} — {{ o.total|floatformat:0 }} FCFA</small>
+        </div>
+        <span class="badge rounded-pill
+          {% if o.status == 'delivered' %}bg-success
+          {% elif o.status == 'shipped' %}bg-info
+          {% elif o.status == 'processing' %}bg-warning text-dark
+          {% else %}bg-secondary{% endif %}">
+          {{ o.get_status_display }}
+        </span>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {% else %}
+  <!-- Résultat du suivi -->
+  <div class="card tracking-card p-4 mb-4">
+    <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-4">
+      <div>
+        <h5 class="fw-bold mb-1">{{ order.reference }}</h5>
+        <small class="text-muted">Commande du {{ order.created_at|date:"d/m/Y à H:i" }}</small>
+      </div>
+      <span class="badge fs-6 rounded-pill
+        {% if order.status == 'delivered' %}bg-success
+        {% elif order.status == 'shipped' %}bg-info
+        {% elif order.status == 'processing' %}bg-warning text-dark
+        {% elif order.status == 'confirmed' %}bg-primary
+        {% else %}bg-secondary{% endif %}">
+        {{ order.get_status_display }}
+      </span>
+    </div>
+
+    <!-- Etapes de livraison -->
+    <div class="mb-4">
+      <h6 class="fw-bold mb-4 text-muted">PROGRESSION DE LA COMMANDE</h6>
+
+      <div class="step {% if order.status in 'confirmed,processing,shipped,delivered' %}step-done{% else %}step-active{% endif %}">
+        <div class="step-icon">✅</div>
+        <div class="ms-2">
+          <p class="fw-bold mb-0">Commande confirmée</p>
+          <small class="text-muted">{{ order.created_at|date:"d/m/Y à H:i" }}</small>
+        </div>
+      </div>
+
+      <div class="step {% if order.status in 'processing,shipped,delivered' %}step-done{% elif order.status == 'confirmed' %}step-active{% else %}step-pending{% endif %}">
+        <div class="step-icon">📦</div>
+        <div class="ms-2">
+          <p class="fw-bold mb-0">En préparation</p>
+          <small class="text-muted">{% if order.status in 'processing,shipped,delivered' %}En cours de traitement{% else %}En attente{% endif %}</small>
+        </div>
+      </div>
+
+      <div class="step {% if order.status in 'shipped,delivered' %}step-done{% elif order.status == 'processing' %}step-active{% else %}step-pending{% endif %}">
+        <div class="step-icon">🚚</div>
+        <div class="ms-2">
+          <p class="fw-bold mb-0">En livraison</p>
+          <small class="text-muted">
+            {% if order.status == 'shipped' %}Votre commande est en route !
+            {% elif order.status == 'delivered' %}Livré avec succès
+            {% else %}En attente{% endif %}
+          </small>
+          {% if tracking_code %}
+          <div class="mt-1">
+            <span class="badge bg-info rounded-pill">
+              <i class="bi bi-qr-code me-1"></i>Code : {{ tracking_code }}
+            </span>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="step {% if order.status == 'delivered' %}step-done{% elif order.status == 'shipped' %}step-active{% else %}step-pending{% endif %}">
+        <div class="step-icon">🎉</div>
+        <div class="ms-2">
+          <p class="fw-bold mb-0">Livré !</p>
+          <small class="text-muted">{% if order.status == 'delivered' %}Commande livrée avec succès{% else %}En attente{% endif %}</small>
+        </div>
+      </div>
+    </div>
+
+    <!-- Info livraison -->
+    <div class="row g-3 mt-2">
+      <div class="col-md-6">
+        <div class="p-3 rounded-3" style="background:#f8f9ff;">
+          <h6 class="fw-bold mb-2"><i class="bi bi-geo-alt text-primary me-1"></i>Adresse de livraison</h6>
+          <p class="mb-0 small">{{ order.shipping_address }}</p>
+          <p class="mb-0 small fw-bold">{{ order.shipping_city }}</p>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="p-3 rounded-3" style="background:#f0fff4;">
+          <h6 class="fw-bold mb-2"><i class="bi bi-receipt text-success me-1"></i>Récapitulatif</h6>
+          <div class="d-flex justify-content-between small">
+            <span>Sous-total</span><span>{{ order.subtotal|floatformat:0 }} FCFA</span>
+          </div>
+          <div class="d-flex justify-content-between small">
+            <span>Livraison</span><span>{{ order.shipping_cost|floatformat:0 }} FCFA</span>
+          </div>
+          <div class="d-flex justify-content-between fw-bold">
+            <span>Total</span><span class="text-primary">{{ order.total|floatformat:0 }} FCFA</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Produits commandés -->
+    <div class="mt-4">
+      <h6 class="fw-bold mb-3"><i class="bi bi-bag me-2 text-primary"></i>Produits commandés</h6>
+      {% for item in order.items.all %}
+      <div class="d-flex align-items-center gap-3 p-2 rounded-3 mb-2" style="background:#f8f9fa;">
+        {% if item.product.images.first %}
+        <img src="{{ item.product.images.first.image.url }}" style="width:50px;height:50px;object-fit:cover;border-radius:8px;">
+        {% endif %}
+        <div class="flex-grow-1">
+          <p class="fw-semibold mb-0 small">{{ item.product.name }}</p>
+          <small class="text-muted">Qté: {{ item.quantity }}</small>
+        </div>
+        <span class="fw-bold text-primary small">{{ item.total_price|floatformat:0 }} FCFA</span>
+      </div>
+      {% endfor %}
+    </div>
+
+    <div class="mt-4 d-flex gap-2 flex-wrap">
+      <a href="?ref={{ order.reference }}" class="btn btn-outline-primary rounded-pill btn-sm">
+        <i class="bi bi-arrow-clockwise me-1"></i>Actualiser
+      </a>
+      <a href="/commandes/{{ order.pk }}/" class="btn btn-primary rounded-pill btn-sm">
+        <i class="bi bi-eye me-1"></i>Voir la commande
+      </a>
+      <a href="/chat/support/" class="btn btn-outline-secondary rounded-pill btn-sm">
+        <i class="bi bi-headset me-1"></i>Contacter le support
+      </a>
+    </div>
+  </div>
+  {% endif %}
+</div>
+
+<script>
+// Auto-refresh toutes les 30 secondes si commande en cours
+{% if order and order.status not in 'delivered,cancelled' %}
+setTimeout(() => location.reload(), 30000);
+{% endif %}
+</script>
+{% endblock %}

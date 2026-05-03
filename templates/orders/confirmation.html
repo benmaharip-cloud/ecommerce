@@ -1,0 +1,85 @@
+{% extends 'base/base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans 'Commande confirmée' %} — ShopDjango{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 700px;">
+  <div class="text-center py-5">
+    <div class="mb-4">
+      <i class="bi bi-check-circle-fill text-success" style="font-size: 80px;"></i>
+    </div>
+    <h2 class="fw-bold">{% trans 'Commande confirmée !' %}</h2>
+    <p class="text-muted fs-5">{% trans 'Merci pour votre achat. Vous recevrez un email de confirmation.' %}</p>
+    <div class="badge bg-primary fs-6 px-4 py-2 mb-4">{{ order.reference }}</div>
+  </div>
+
+  <!-- Récapitulatif -->
+  <div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+      <h5 class="fw-semibold mb-3">{% trans 'Récapitulatif de la commande' %}</h5>
+      <div class="table-responsive">
+        <table class="table">
+          <thead class="table-light">
+            <tr>
+              <th>{% trans 'Produit' %}</th>
+              <th class="text-center">{% trans 'Qté' %}</th>
+              <th class="text-end">{% trans 'Prix' %}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in order.items.all %}
+            <tr>
+              <td>{{ item.product_name }}</td>
+              <td class="text-center">{{ item.quantity }}</td>
+              <td class="text-end">{{ item.subtotal|floatformat:0 }} FCFA</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="2" class="text-end text-muted">{% trans 'Sous-total' %}</td>
+              <td class="text-end">{{ order.subtotal|floatformat:0 }} FCFA</td>
+            </tr>
+            {% if order.discount_amount %}
+            <tr class="text-success">
+              <td colspan="2" class="text-end">{% trans 'Réduction' %}</td>
+              <td class="text-end">-{{ order.discount_amount|floatformat:0 }} FCFA</td>
+            </tr>
+            {% endif %}
+            <tr>
+              <td colspan="2" class="text-end text-muted">{% trans 'Livraison' %}</td>
+              <td class="text-end">{{ order.shipping_cost|floatformat:0 }} FCFA</td>
+            </tr>
+            <tr class="fw-bold fs-5">
+              <td colspan="2" class="text-end">{% trans 'Total' %}</td>
+              <td class="text-end text-primary">{{ order.total|floatformat:0 }} FCFA</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Suivi livraison -->
+  {% if order.delivery %}
+  <div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+      <h5 class="fw-semibold mb-3"><i class="bi bi-truck me-2 text-primary"></i>{% trans 'Suivi livraison' %}</h5>
+      <p class="mb-1">{% trans 'Code de suivi :' %} <strong>{{ order.delivery.tracking_code }}</strong></p>
+      <p class="text-muted small">{% trans 'Vous recevrez une notification SMS dès que votre commande est en route.' %}</p>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Actions -->
+  <div class="d-flex gap-3 justify-content-center">
+    <a href="{% url 'orders:list' %}" class="btn btn-outline-primary">
+      <i class="bi bi-box-seam me-2"></i>{% trans 'Mes commandes' %}
+    </a>
+    <a href="{% url 'products:home' %}" class="btn btn-primary">
+      <i class="bi bi-shop me-2"></i>{% trans 'Continuer mes achats' %}
+    </a>
+  </div>
+</div>
+{% endblock %}

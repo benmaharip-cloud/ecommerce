@@ -1,0 +1,209 @@
+{% extends "base/base.html" %}
+{% block title %}Tâches Périodiques — ShopDjango{% endblock %}
+{% block content %}
+<style>
+  .task-card { border-radius: 16px; border: none; box-shadow: 0 4px 20px rgba(0,0,0,0.06); }
+  .task-badge { border-radius: 8px; padding: 4px 10px; font-size: 0.8rem; }
+  .status-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+</style>
+
+<div class="container py-4" style="max-width:1100px;">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h4 class="fw-bold mb-0"><i class="bi bi-clock-history me-2 text-primary"></i>Tâches Périodiques</h4>
+      <small class="text-muted">Gérez les automatisations de ShopDjango</small>
+    </div>
+    <a href="/fr/admin/django_celery_beat/periodictask/add/" class="btn btn-primary rounded-pill">
+      <i class="bi bi-plus-circle me-1"></i>Nouvelle tâche
+    </a>
+  </div>
+
+  <!-- Statistiques -->
+  <div class="row g-3 mb-4">
+    <div class="col-md-3">
+      <div class="card task-card text-center p-3" style="background:linear-gradient(135deg,#0d6efd,#0099ff);">
+        <i class="bi bi-list-task fs-2 text-white"></i>
+        <div class="fw-bold fs-4 text-white mt-1">{{ total_tasks }}</div>
+        <small class="text-white opacity-75">Total tâches</small>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card task-card text-center p-3" style="background:linear-gradient(135deg,#28a745,#20c997);">
+        <i class="bi bi-check-circle fs-2 text-white"></i>
+        <div class="fw-bold fs-4 text-white mt-1">{{ active_tasks }}</div>
+        <small class="text-white opacity-75">Actives</small>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card task-card text-center p-3" style="background:linear-gradient(135deg,#ffc107,#fd7e14);">
+        <i class="bi bi-pause-circle fs-2 text-white"></i>
+        <div class="fw-bold fs-4 text-white mt-1">{{ inactive_tasks }}</div>
+        <small class="text-white opacity-75">Inactives</small>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card task-card text-center p-3" style="background:linear-gradient(135deg,#6f42c1,#e83e8c);">
+        <i class="bi bi-lightning fs-2 text-white"></i>
+        <div class="fw-bold fs-4 text-white mt-1">{{ crontab_tasks }}</div>
+        <small class="text-white opacity-75">Crontabs</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- Liste des tâches -->
+  <div class="card task-card">
+    <div class="card-header bg-white border-0 pt-4 px-4">
+      <ul class="nav nav-pills gap-2" id="taskTabs">
+        <li class="nav-item">
+          <a class="nav-link active" data-bs-toggle="pill" href="#all-tasks">
+            <i class="bi bi-grid me-1"></i>Toutes
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" data-bs-toggle="pill" href="#interval-tasks">
+            <i class="bi bi-arrow-repeat me-1"></i>Intervalles
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" data-bs-toggle="pill" href="#crontab-tasks">
+            <i class="bi bi-calendar-event me-1"></i>Crontabs
+          </a>
+        </li>
+      </ul>
+    </div>
+    <div class="card-body p-4">
+      <div class="tab-content">
+
+        <!-- Toutes les tâches -->
+        <div class="tab-pane fade show active" id="all-tasks">
+          <div class="table-responsive">
+            <table class="table table-hover align-middle">
+              <thead class="table-light">
+                <tr>
+                  <th>Tâche</th>
+                  <th>Type</th>
+                  <th>Horaire</th>
+                  <th>Dernière exécution</th>
+                  <th>Statut</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for task in tasks %}
+                <tr>
+                  <td>
+                    <p class="fw-semibold mb-0">{{ task.name }}</p>
+                    <small class="text-muted">{{ task.task|truncatechars:40 }}</small>
+                  </td>
+                  <td>
+                    {% if task.interval %}
+                      <span class="badge bg-primary task-badge">⏱ Intervalle</span>
+                    {% elif task.crontab %}
+                      <span class="badge bg-purple task-badge" style="background:#6f42c1;">📅 Crontab</span>
+                    {% else %}
+                      <span class="badge bg-secondary task-badge">❓ Autre</span>
+                    {% endif %}
+                  </td>
+                  <td>
+                    {% if task.interval %}
+                      <small>Toutes les {{ task.interval }}</small>
+                    {% elif task.crontab %}
+                      <small>{{ task.crontab }}</small>
+                    {% endif %}
+                  </td>
+                  <td>
+                    {% if task.last_run_at %}
+                      <small class="text-muted">{{ task.last_run_at|date:"d/m/Y H:i" }}</small>
+                    {% else %}
+                      <small class="text-muted">Jamais exécutée</small>
+                    {% endif %}
+                  </td>
+                  <td>
+                    {% if task.enabled %}
+                      <span class="status-dot bg-success me-1"></span>
+                      <small class="text-success fw-semibold">Active</small>
+                    {% else %}
+                      <span class="status-dot bg-danger me-1"></span>
+                      <small class="text-danger fw-semibold">Inactive</small>
+                    {% endif %}
+                  </td>
+                  <td>
+                    <a href="/fr/admin/django_celery_beat/periodictask/{{ task.id }}/change/" 
+                       class="btn btn-sm btn-outline-primary rounded-pill">
+                      <i class="bi bi-pencil"></i>
+                    </a>
+                  </td>
+                </tr>
+                {% empty %}
+                <tr>
+                  <td colspan="6" class="text-center text-muted py-4">
+                    <i class="bi bi-clock fs-1"></i>
+                    <p class="mt-2">Aucune tâche configurée</p>
+                    <a href="/fr/admin/django_celery_beat/periodictask/add/" class="btn btn-primary btn-sm">
+                      Ajouter une tâche
+                    </a>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Intervalles -->
+        <div class="tab-pane fade" id="interval-tasks">
+          <table class="table table-hover align-middle">
+            <thead class="table-light">
+              <tr><th>Tâche</th><th>Intervalle</th><th>Statut</th></tr>
+            </thead>
+            <tbody>
+              {% for task in tasks %}
+              {% if task.interval %}
+              <tr>
+                <td><p class="fw-semibold mb-0">{{ task.name }}</p></td>
+                <td><span class="badge bg-primary">{{ task.interval }}</span></td>
+                <td>
+                  {% if task.enabled %}
+                    <span class="badge bg-success">✅ Active</span>
+                  {% else %}
+                    <span class="badge bg-danger">❌ Inactive</span>
+                  {% endif %}
+                </td>
+              </tr>
+              {% endif %}
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Crontabs -->
+        <div class="tab-pane fade" id="crontab-tasks">
+          <table class="table table-hover align-middle">
+            <thead class="table-light">
+              <tr><th>Tâche</th><th>Planning</th><th>Statut</th></tr>
+            </thead>
+            <tbody>
+              {% for task in tasks %}
+              {% if task.crontab %}
+              <tr>
+                <td><p class="fw-semibold mb-0">{{ task.name }}</p></td>
+                <td><span class="badge bg-purple" style="background:#6f42c1;">{{ task.crontab }}</span></td>
+                <td>
+                  {% if task.enabled %}
+                    <span class="badge bg-success">✅ Active</span>
+                  {% else %}
+                    <span class="badge bg-danger">❌ Inactive</span>
+                  {% endif %}
+                </td>
+              </tr>
+              {% endif %}
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

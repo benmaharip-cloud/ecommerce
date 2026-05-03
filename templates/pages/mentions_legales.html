@@ -1,0 +1,40 @@
+{% extends 'base/base.html' %}
+{% block title %}Mentions Légales — ShopDjango{% endblock %}
+{% block content %}
+<style>
+  .legal-hero { background: linear-gradient(135deg, #6f42c1, #e83e8c); padding: 3rem 0; }
+  .legal-card { border-radius: 20px; border: none; box-shadow: 0 8px 30px rgba(0,0,0,0.08); }
+  .section-title { color: #6f42c1; border-left: 4px solid #6f42c1; padding-left: 1rem; }
+</style>
+<div class="legal-hero text-white text-center">
+  <h2 class="fw-bold">Mentions Légales</h2>
+  <p class="opacity-75">ShopDjango — Tchad</p>
+</div>
+<div class="container py-5" style="max-width:800px;">
+  <div class="card legal-card p-4 p-md-5">
+    <h4 class="section-title mb-3">1. Editeur du site</h4>
+    <table class="table table-borderless">
+      <tr><td class="fw-semibold">Nom</td><td>ShopDjango</td></tr>
+      <tr><td class="fw-semibold">Pays</td><td>Tchad</td></tr>
+      <tr><td class="fw-semibold">Ville</td><td>N'Djamena</td></tr>
+      <tr><td class="fw-semibold">Telephone</td><td>+235 62 40 14 54</td></tr>
+      <tr><td class="fw-semibold">Email</td><td>benmaharip@gmail.com</td></tr>
+      <tr><td class="fw-semibold">Directeur</td><td>Mahamat Abakar</td></tr>
+    </table>
+    <hr class="my-4">
+    <h4 class="section-title mb-3">2. Propriété intellectuelle</h4>
+    <p>Tout le contenu du site est la propriété exclusive de ShopDjango. Toute reproduction sans autorisation est interdite.</p>
+    <hr class="my-4">
+    <h4 class="section-title mb-3">3. Cookies</h4>
+    <p>ShopDjango utilise des cookies pour améliorer l'expérience utilisateur et maintenir les sessions de connexion.</p>
+    <hr class="my-4">
+    <h4 class="section-title mb-3">4. Loi applicable</h4>
+    <p>Ces mentions légales sont soumises au droit tchadien. En cas de litige, les tribunaux de N'Djamena seront compétents.</p>
+    <hr class="my-4">
+    <div class="text-center p-4 rounded-3" style="background:#f8f9ff;">
+      <a href="/pages/cgv/" class="btn btn-primary rounded-pill me-2">Voir les CGV</a>
+      <a href="/chat/support/" class="btn btn-outline-primary rounded-pill">Nous contacter</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

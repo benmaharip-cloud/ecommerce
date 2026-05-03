@@ -1,0 +1,36 @@
+{% extends "base/base.html" %}
+{% block title %}Paiement Stripe — ShopDjango{% endblock %}
+{% block content %}
+<div class="container" style="max-width:500px;">
+  <div class="card border-0 shadow-sm mt-4">
+    <div class="card-body p-4">
+      <h4 class="fw-bold mb-1"><i class="bi bi-credit-card me-2 text-primary"></i>Paiement sécurisé</h4>
+      <p class="text-muted small mb-3">Commande {{ order.reference }} — {{ order.total|floatformat:0 }} FCFA</p>
+      <div class="mb-3">
+        <label class="form-label fw-semibold">Numéro de carte</label>
+        <input type="text" class="form-control" value="4242 4242 4242 4242" readonly>
+      </div>
+      <div class="row g-2 mb-3">
+        <div class="col">
+          <label class="form-label fw-semibold">Date expiration</label>
+          <input type="text" class="form-control" value="12/29" readonly>
+        </div>
+        <div class="col">
+          <label class="form-label fw-semibold">CVV</label>
+          <input type="text" class="form-control" value="123" readonly>
+        </div>
+      </div>
+      <div class="alert alert-info small">
+        <i class="bi bi-info-circle me-1"></i>
+        Mode test — carte de démonstration Stripe
+      </div>
+      <a href="/paiement/succes/{{ order.id }}/" class="btn btn-primary w-100 btn-lg">
+        <i class="bi bi-lock me-2"></i>Confirmer le paiement {{ order.total|floatformat:0 }} FCFA
+      </a>
+      <p class="text-center text-muted small mt-3">
+        <i class="bi bi-shield-check me-1"></i>Paiement sécurisé par Stripe
+      </p>
+    </div>
+  </div>
+</div>
+{% endblock %}

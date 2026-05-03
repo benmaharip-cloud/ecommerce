@@ -1,0 +1,83 @@
+{% extends "base/base.html" %}
+{% block title %}Chat Support — ShopDjango{% endblock %}
+{% block content %}
+<div class="container py-4" style="max-width:700px;">
+  <div class="card border-0 shadow-sm">
+    <div class="card-header bg-primary text-white d-flex align-items-center gap-2">
+      <i class="bi bi-chat-dots-fill"></i>
+      <strong>Support en direct</strong>
+      <span class="badge bg-success ms-auto">En ligne</span>
+    </div>
+    <div class="card-body p-0">
+      <div id="chat-messages" style="height:420px;overflow-y:auto;padding:1rem;">
+        {% for msg in messages %}
+          <div class="d-flex {% if msg.is_bot %}justify-content-start{% else %}justify-content-end{% endif %} mb-2">
+            <div class="px-3 py-2 rounded-3 {% if msg.is_bot %}bg-light text-dark{% else %}bg-primary text-white{% endif %}"
+                 style="max-width:75%;font-size:.92rem;">
+              {% if msg.is_bot %}<small class="fw-bold d-block text-primary mb-1">Assistant</small>{% endif %}
+              {{ msg.content }}
+              <div class="text-end mt-1"><small class="opacity-50" style="font-size:.75rem;">{{ msg.created_at|time:"H:i" }}</small></div>
+            </div>
+          </div>
+        {% empty %}
+          <div class="text-center text-muted py-5">
+            <i class="bi bi-chat-heart" style="font-size:2.5rem;"></i>
+            <p class="mt-2">Bonjour ! Comment puis-je vous aider ?</p>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+    <div class="card-footer p-2">
+      <div class="input-group">
+        <input id="chat-input" type="text" class="form-control" placeholder="Votre message..." autocomplete="off">
+        <button id="chat-send" class="btn btn-primary">
+          <i class="bi bi-send-fill"></i>
+        </button>
+      </div>
+      <div class="mt-1 px-1"><small class="text-muted">Essayez : livraison, retour, paiement, commande</small></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const roomName = "{{ room.name }}";
+const ws = new WebSocket(`ws://${window.location.host}/ws/chat/${roomName}/`);
+const box = document.getElementById("chat-messages");
+
+function scrollBottom() { box.scrollTop = box.scrollHeight; }
+scrollBottom();
+
+function addMsg(content, isBot, time) {
+  const align = isBot ? "justify-content-start" : "justify-content-end";
+  const style = isBot ? "bg-light text-dark" : "bg-primary text-white";
+  const who = isBot ? `<small class="fw-bold d-block text-primary mb-1">Assistant</small>` : "";
+  box.insertAdjacentHTML("beforeend", `
+    <div class="d-flex ${align} mb-2">
+      <div class="px-3 py-2 rounded-3 ${style}" style="max-width:75%;font-size:.92rem;">
+        ${who}${content}
+        <div class="text-end mt-1"><small class="opacity-50" style="font-size:.75rem;">${time}</small></div>
+      </div>
+    </div>`);
+  scrollBottom();
+}
+
+ws.onmessage = e => {
+  const d = JSON.parse(e.data);
+  const t = new Date().toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"});
+  addMsg(d.message, d.is_bot, t);
+};
+
+function sendMsg() {
+  const inp = document.getElementById("chat-input");
+  const msg = inp.value.trim();
+  if (!msg) return;
+  const t = new Date().toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"});
+  addMsg(msg, false, t);
+  ws.send(JSON.stringify({message: msg}));
+  inp.value = "";
+}
+
+document.getElementById("chat-send").addEventListener("click", sendMsg);
+document.getElementById("chat-input").addEventListener("keypress", e => { if(e.key==="Enter") sendMsg(); });
+</script>
+{% endblock %}

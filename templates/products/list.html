@@ -1,0 +1,123 @@
+{% extends "base/base.html" %}
+{% block title %}Catalogue — ShopDjango{% endblock %}
+{% block content %}
+<div class="container">
+  <div class="row g-4">
+    <div class="col-md-3 filters-sidebar" id="filtersSidebar">
+  <button class="btn btn-sm btn-outline-secondary mb-3 d-md-none" 
+          onclick="document.getElementById('filtersSidebar').classList.remove('show')">
+    <i class="bi bi-x-lg me-1"></i>Fermer
+  </button>
+      <div class="card border-0 shadow-sm sticky-top" style="top:80px;">
+        <div class="card-body">
+          <h6 class="fw-bold mb-3"><i class="bi bi-funnel me-2"></i>Filtres</h6>
+          <form method="get">
+            <input type="hidden" name="q" value="{{ request.GET.q }}">
+            <div class="mb-3">
+              <label class="form-label fw-semibold small">Categorie</label>
+              <select name="category" class="form-select form-select-sm" onchange="this.form.submit()">
+                <option value="">Toutes</option>
+                {% for cat in categories %}
+                <option value="{{ cat.slug }}" {% if request.GET.category == cat.slug %}selected{% endif %}>{{ cat.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="mb-3">
+              <label class="form-label fw-semibold small">Prix min (FCFA)</label>
+              <input type="number" name="min_price" class="form-control form-control-sm" value="{{ request.GET.min_price }}" placeholder="0">
+            </div>
+            <div class="mb-3">
+              <label class="form-label fw-semibold small">Prix max (FCFA)</label>
+              <input type="number" name="max_price" class="form-control form-control-sm" value="{{ request.GET.max_price }}" placeholder="1000000">
+            </div>
+            <div class="mb-3">
+              <label class="form-label fw-semibold small">Trier par</label>
+              <select name="sort" class="form-select form-select-sm" onchange="this.form.submit()">
+                <option value="-created_at">Plus recents</option>
+                <option value="price_asc" {% if request.GET.sort == "price_asc" %}selected{% endif %}>Prix croissant</option>
+                <option value="price_desc" {% if request.GET.sort == "price_desc" %}selected{% endif %}>Prix decroissant</option>
+              </select>
+            </div>
+            <button type="submit" class="btn btn-primary w-100 btn-sm">Appliquer</button>
+            <a href="/produits/" class="btn btn-outline-secondary w-100 btn-sm mt-2">Reinitialiser</a>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-9">
+  <button class="btn btn-outline-primary btn-sm mb-3 filter-toggle-btn w-100"
+          onclick="document.getElementById('filtersSidebar').classList.toggle('show')">
+    <i class="bi bi-funnel me-1"></i>Filtres & Tri
+  </button>
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+          <h4 class="fw-bold mb-0">{% if request.GET.q %}Resultats pour "{{ request.GET.q }}"{% else %}Catalogue produits{% endif %}</h4>
+          <small class="text-muted">{{ paginator.count }} produit(s)</small>
+        </div>
+      </div>
+      <div class="row g-3">
+        {% for product in products %}
+        <div class="col-6 col-md-4">
+          <div class="card border-0 shadow-sm h-100 product-card product-hover-card">
+            <div class="position-relative overflow-hidden">
+              {% if product.images.exists %}
+              <img src="{{ product.images.first.image.url }}" class="card-img-top" alt="{{ product.name }}" style="height:180px;object-fit:cover;">
+              {% else %}
+              <div class="bg-light d-flex align-items-center justify-content-center" style="height:180px;"><i class="bi bi-image text-muted fs-1"></i></div>
+              {% endif %}
+              {% if product.discount_price %}<span class="badge bg-danger position-absolute top-0 start-0 m-2">-{{ product.discount_percent }}%</span>{% endif %}
+              {% if not product.in_stock %}<span class="badge bg-secondary position-absolute top-0 end-0 m-2">Rupture</span>{% endif %}
+
+              <!-- Overlay hover -->
+              <div class="product-overlay position-absolute top-0 start-0 w-100 h-100
+                          d-flex flex-column align-items-center justify-content-end pb-2"
+                   style="background:rgba(0,0,0,0.4);opacity:0;transition:opacity .2s;z-index:2;">
+                <button class="btn btn-light btn-sm w-75 mb-1 fw-semibold preview-btn"
+                        data-id="{{ product.pk }}" data-slug="{{ product.slug }}">
+                  <i class="bi bi-eye me-1"></i>Aperçu
+                </button>
+                <button class="btn btn-outline-light btn-sm w-75 similar-btn"
+                        data-id="{{ product.pk }}">
+                  <i class="bi bi-grid me-1"></i>Articles similaires
+                </button>
+              </div>
+            </div>
+            <div class="card-body d-flex flex-column">
+              <p class="text-muted small mb-1">{{ product.category.name }}</p>
+              <h6 class="fw-semibold mb-1"><a href="/produits/{{ product.slug }}/" class="text-dark text-decoration-none stretched-link">{{ product.name }}</a></h6>
+              <div class="text-warning small mb-2">
+                {% for i in "12345" %}{% if forloop.counter <= product.average_rating %}<i class="bi bi-star-fill"></i>{% else %}<i class="bi bi-star"></i>{% endif %}{% endfor %}
+                <span class="text-muted">({{ product.reviews.count }})</span>
+              </div>
+              <div class="mt-auto">
+                {% if product.discount_price %}
+                <span class="fw-bold text-primary">{{ product.discount_price|floatformat:0 }} FCFA</span>
+                <span class="text-muted text-decoration-line-through small ms-1">{{ product.price|floatformat:0 }}</span>
+                {% else %}
+                <span class="fw-bold text-primary">{{ product.price|floatformat:0 }} FCFA</span>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center py-5">
+          <i class="bi bi-search text-muted" style="font-size:60px;"></i>
+          <h4 class="mt-3 text-muted">Aucun produit trouve</h4>
+          <a href="/produits/" class="btn btn-primary mt-2">Voir tout le catalogue</a>
+        </div>
+        {% endfor %}
+      </div>
+      {% if is_paginated %}
+      <nav class="mt-4">
+        <ul class="pagination justify-content-center">
+          {% if page_obj.has_previous %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">&laquo;</a></li>{% endif %}
+          {% for num in page_obj.paginator.page_range %}<li class="page-item {% if page_obj.number == num %}active{% endif %}"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>{% endfor %}
+          {% if page_obj.has_next %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">&raquo;</a></li>{% endif %}
+        </ul>
+      </nav>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}
