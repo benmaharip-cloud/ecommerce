@@ -8,6 +8,7 @@ urlpatterns = [
     path("deconnexion/", auth_views.LogoutView.as_view(next_page="/"), name="logout"),
     path("inscription/", views.register, name="register"),
     path("profil/", views.profile, name="profile"),
+    path("parrainage/", views.referral_view, name="referral"),
     path("mes-coupons/", views.my_coupons, name="my_coupons"),
     path("mot-de-passe-oublie/", auth_views.PasswordResetView.as_view(
         template_name="users/password_reset.html",

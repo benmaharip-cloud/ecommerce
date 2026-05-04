@@ -217,3 +217,33 @@ LANGUAGE_COOKIE_NAME = 'django_language'
 LOGIN_REDIRECT_URL = '/'
 LOGIN_URL = '/compte/connexion/'
 LOGOUT_REDIRECT_URL = '/'
+
+
+# ===== PRODUCTION SETTINGS =====
+import os as _os
+if _os.environ.get("RAILWAY_ENVIRONMENT") or _os.environ.get("RENDER"):
+    DEBUG = False
+    
+    # Base de données PostgreSQL
+    import dj_database_url
+    DATABASES["default"] = dj_database_url.config(
+        conn_max_age=600,
+        conn_health_checks=True,
+    )
+    
+    # Whitenoise pour les fichiers statiques
+    MIDDLEWARE.insert(1, "whitenoise.middleware.WhiteNoiseMiddleware")
+    STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+    STATIC_ROOT = BASE_DIR / "staticfiles"
+    
+    # Sécurité
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    
+    # ALLOWED_HOSTS depuis variable d'environnement
+    ALLOWED_HOSTS = _os.environ.get("ALLOWED_HOSTS", "*").split(",")
+    CSRF_TRUSTED_ORIGINS = [
+        f"https://{h}" for h in ALLOWED_HOSTS if h != "*"
+    ]

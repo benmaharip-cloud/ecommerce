@@ -70,3 +70,19 @@ def my_coupons(request):
         valid_until__gte=timezone.now()
     ).order_by('-discount_value')
     return render(request, "coupons/my_coupons.html", {"coupons": coupons})
+
+from django.contrib.auth.decorators import login_required
+
+@login_required
+def referral_view(request):
+    from django.shortcuts import render
+    from apps.users.models import User
+    user = request.user
+    referrals = User.objects.filter(referred_by=user)
+    referral_orders = sum(r.orders.count() for r in referrals)
+    return render(request, 'users/referral.html', {
+        'referral_count': referrals.count(),
+        'referral_points': getattr(user, 'referral_points', 0),
+        'referral_orders': referral_orders,
+        'referrals': referrals,
+    })
